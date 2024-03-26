@@ -1,4 +1,4 @@
-# Starter folder
+#  An Analysis of Income Inequality
 
 ## Overview
 
