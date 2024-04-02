@@ -1,14 +1,14 @@
 ---
-title: "My title"
-subtitle: "My subtitle if needed"
+title: "Exploring Income Inequality Dynamics in Canada: A Geospatial and Temporal Analysis"
+subtitle: "Insights from 1976 to 2021"
 author: 
-  - First author
-  - Another author
-thanks: "Code and data are available at: LINK."
+  - Sirui Tan
+thanks: "Code and data are available at: https://github.com/siru1366/income.git."
 date: today
 date-format: long
-abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+abstract: "This paper investigates income inequality in Canada from 1976 to 2021 using data from various surveys. Through exploratory data analysis and regression modeling, we uncover increasing income inequality trends over time and variations across different provinces. Our findings reveal nuanced relationships between temporal trends, regional disparities, and income distribution dynamics. Through rigorous analysis, we uncover three key findings: a consistent rise in income inequality over time, significant regional disparities across provinces, and nuanced interactions between temporal trends and income distribution dynamics. Understanding these dynamics is crucial for policymakers to develop targeted strategies aimed at mitigating income inequality and promoting social and economic equity in Canada."
 format: pdf
+toc: true
 number-sections: true
 bibliography: references.bib
 ---
@@ -18,94 +18,213 @@ bibliography: references.bib
 #| warning: false
 #| message: false
 
+library(bayesplot)
+library(coda)
 library(tidyverse)
 library(palmerpenguins)
+library(kableExtra)
+library(dplyr)
+library(tidyr)
+library(knitr)
+library(arrow)
 ```
 
-
 # Introduction
+Income inequality is a pressing socioeconomic issue that has garnered significant attention worldwide, with Canada being no exception. Over the past few decades, Canada has witnessed a widening gap in per capita after-tax income, raising concerns about economic disparities and social justice. Understanding the drivers behind this trend is crucial for policymakers and researchers alike, as it provides insights into the factors influencing income distribution and informs strategies to mitigate inequality.
 
-You can and should cross-reference sections and sub-sections. We use @citeR and @rohan.
+This paper aims to delve into the intricate dynamics of income inequality within Canada, focusing on the period from 1976 to 2021. Leveraging a comprehensive dataset spanning multiple surveys, including the Survey of Consumer Finances (SCF), the Survey of Labour and Income Dynamics (SLID), and the Canadian Income Survey (CIS), we embark on a rigorous exploration of income trends across different provinces and over time. By examining key variables such as year, geographical location, income decile, and income range, we seek to uncover patterns and nuances in income distribution dynamics.
 
-The remainder of this paper is structured as follows. @sec-data....
+Despite numerous studies on income inequality in Canada, there remains a clear gap in understanding the specific drivers and mechanisms contributing to the widening income gap observed over the past four decades. To address this gap, we undertake a multifaceted analysis, encompassing exploratory data analysis and multiple linear regression modeling. Through this approach, we aim to elucidate the role of various factors, including temporal trends, regional disparities, and their interactions, in shaping income distribution patterns.
 
+Temporal trends reveal a consistent increase in income inequality from 1976 to 2021. Geographical disparities highlight varying levels of income inequality across provinces, with Atlantic provinces and Quebec showing higher inequality compared to others. Interaction effects underscore the nuanced relationship between time and income inequality, indicating varying impacts across different provinces. Overall, these findings emphasize the multifaceted nature of income inequality dynamics in Canada, urging policymakers to consider both temporal trends and regional disparities when addressing this pressing socioeconomic issue.
 
+The remainder of this paper is structured as follows. @sec-data introduces the data used for analysis and findings, including visualizations of the variables of interest, @sec-model
+proposes a straightforward linear regression model to examine and forecasts the effects of time (year) and geographical location (province) on income inequality in Canada.In @sec-results, we display the interpretations of the models alongside other findings from analyzing the data. @sec-discussion provides a discussion on the implications of the findings as well as the weaknesses of this paper and its next steps for further study on this subject.
+
+## Estimand
+The estimand of this study is to quantify the relationship between time (year) and income inequality in Canada. Specifically, we aim to estimate the effect of each unit change in the year on income inequality, holding other variables constant. This involves analyzing how income inequality trends have evolved over the period from 1976 to 2021, capturing any systematic changes over time.
+
+Additionally, we seek to understand the impact of geographical location (province) on income inequality and how this interacts with temporal trends. By examining the coefficients associated with both year and province variables in our regression models, we aim to discern the average differences in income inequality between different provinces, while also exploring how these differences may have changed over time.
+
+Overall, our estimand focuses on uncovering the nuanced relationship between time, geographical location, and income inequality in Canada, providing insights into the factors influencing income distribution dynamics over the study period.
 
 # Data {#sec-data}
 
-Some of our data is of penguins (@fig-bills), from @palmerpenguins.
+## Data Source
+
+Upper income limit, income share and average income by economic family type and income decile
+
+## Data Measurment
+
+The estimates for Upper Income Limit, After-Tax Income by Economic and Income Decile in Canada are based on data from various surveys spanning different periods. From 1976 to 1992, data was collected from the Survey of Consumer Finances (SCF). For the period from 1993 to 1997, a combination of SCF and the Survey of Labour and Income Dynamics (SLID) was used. Subsequently, from 1998 to 2011, data solely from SLID was utilized. Starting from 2012, the Canadian Income Survey (CIS) became the primary data source. More details on these surveys and their revisions can be found in publications by Statistics Canada, including "Revisions to 2006 to 2011 Income Data" (2015) by Statistics Canada and other related papers by Cotton (2000) and Lathe (2005).
+
+The Canadian Income Survey (CIS) aims to provide insights into the income and its sources of Canadians, alongside their individual and household characteristics. It combines data from the Labour Force Survey (LFS) and tax records.
+
+Estimates from the Survey of Consumer Finances cover individuals aged 15 years and over, whereas estimates from SLID and CIS include individuals aged 16 years and over.
+
+The CIS introduced improvements in methodology and data processing, notably from the 2021 reference year onwards. It transitioned to using the Administrative Personal Income Masterfile, incorporating data from both T1 tax returns and associated tax slips. Prior to this, only T1 tax returns were used. These enhancements, including updates to weighting methodology, aim to enhance data quality while minimally impacting key estimates and trends.
+
+The CIS is a sample survey with a cross-sectional design, administered to a sub-sample of LFS respondents. The LFS employs a rotating panel sample design, with selected dwellings remaining in the sample for six consecutive months in the provinces and for two years in the territories. Rotation groups from the LFS are utilized for the CIS sample, with approximately 55,000 households included in the CIS sample for 2021.
+
+Data cleaning and analysis were conducted using the open-source statistical programming language `R` [@citeR], leveraging functionalities from the `tidyverse` [@tidyverse], `ggplot2` [@ggplot2], `dplyr` [@dplyr], `readr` [@readr], `tibble` [@tibble],`stringr`  [@stringr], `haven` [@haven], `janitor` [@janitor], `knitr` [@knitr].
+
+## Variables of Interest
+
+```{r dataextract, echo=FALSE, message=FALSE}
+# create a table showing the first 20 rows of the cleaned data
+income <<- read_parquet(file = here::here("data/analysis_data/cleaned_income_data.parquet"))
+income %>%
+  slice(1:20) %>%
+  kable(
+    caption = "Extracting the first ten rows from the Income data",
+col.names=c("Year", "Geographical location", "Income decile", "Income", "Highest-to-Lowest Average Income Ratio", "income range"),
+linesep = "", digits = 1, booktabs=TRUE) %>%
+  kable_styling(latex_options = "HOLD_position", font_size = 10)
+```
+
+
+1.  **Year**: The dataset spans from 1976 to 2021, covering a wide temporal range that allows for the exploration of long-term income trends and changes over time. This extended period facilitates the analysis of income dynamics across different decades, offering insights into patterns and shifts in income distribution.
+
+2.  **Geographical location**: The dataset includes data from all provinces in Canada, providing a comprehensive view of income distribution dynamics across the entire country. This geographic diversity enables the examination of regional variations and disparities in income levels and inequality measures.
+
+3.  **Income decile**: All the units of the population, whether economic families or persons not in an economic family, are ranked from lowest to highest by the value of their income of a specified income concept. Then, the ranked population is divided into ten groups of equal numbers of units, called deciles. Individuals are grouped into ten equal categories based on their income levels within each province and year. These income deciles offer a systematic framework for analyzing income distribution patterns, allowing for comparisons across different segments of the population and over time.
+
+4.  **Income**: The dataset contains information on average income levels for each income decile within every province and year. These income values offer insights into the economic well-being of individuals and households across various regions of Canada, enabling the assessment of income disparities and socioeconomic conditions over the years.
+
+5.  **Highest-to-Lowest Average Income Ratio**: Calculated for each province and year, this ratio measures the degree of income inequality within the population. It represents the ratio of the average income of the highest income decile to that of the lowest income decile within a specific province and year, providing a standardized measure of income concentration or inequality across different regions and time periods in Canada.
+
+6.  **Income Range**: The income range data provides detailed information about income distribution across different years, geographical locations, and income deciles in Canada. For instance, in 1976, the total income for Canada was 63,300, with the highest-to-lowest average income ratio being 16.8, indicating a significant income gap between the highest and lowest deciles. The income range for the lowest decile in Canada was 9,400, while the income for the highest decile was $157,500.
+
+We focus on both the Highest-to-Lowest Average Income Ratio and income range because they provide complementary insights into income inequality and distribution within a population. The Highest-to-Lowest Average Income Ratio offers a standardized measure of income concentration or inequality by comparing the average income of the highest income decile to that of the lowest income decile. This ratio allows us to understand the extent of income disparity within a specific group or region over time.
+
+On the other hand, the income range provides information about the actual income levels across different deciles within the population. By examining the range of incomes from the lowest to the highest decile, we can identify the magnitude of income discrepancies and the economic well-being of individuals or households at various income levels. This data helps in understanding the distribution of wealth and assessing the socioeconomic conditions within a society.
+
+## Data Visualization
+
 
 ```{r}
 #| label: fig-bills
-#| fig-cap: Bills of penguins
+#| fig-cap: Trend of Average After-Tax Income Across Income Deciles in Canada in 1976 to 2021
 #| echo: false
+#| warning: false
+income3 <- read_parquet(file = here::here("data/analysis_data/cleaned_income_data.parquet"),show_col_types = FALSE)
 
-ggplot(penguins, aes(x = island, fill = species)) +
-  geom_bar(alpha = 0.8) +
-  scale_fill_manual(values = c("darkorange","purple","cyan4"),
-                    guide = "none") +
-  theme_minimal() +
-  facet_wrap(~species, ncol = 1) +
-  coord_flip()
+income3 %>%
+  filter(
+         `Income decile` == "Lowest decile" | `Income decile` == "Total deciles"| `Income decile` == "Highest decile",
+         `Geographical Location` == "Canada") %>%
+  ggplot(aes(x=Year, y=Income, colour = `Income decile`))+geom_line()+theme_minimal()+ylab("Average after-tax income")
+  
+
 ```
 
-Talk more about it.
+As depicted in the figure by @fig-bills, the average after-tax income for economic families and unattached individuals in Canada has demonstrated a consistent upward trajectory from 1976 to 2021. During this period, the average after-tax income in Canada increased from approximately \$63,300 in 1976 to \$83,100 in 2021. Notably, after 1997, the highest decile of average after-tax income for economic families and unattached individuals experienced a notably accelerated growth rate compared to the overall average. Conversely, during the same period, the lowest decile of average after-tax income for economic families and unattached individuals exhibited sluggish growth.
 
-And also planes (@fig-planes). (You can change the height and width, but don't worry about doing that until you have finished every other aspect of the paper - Quarto will try to make it look nice and the defaults usually work well once you have enough text.)
 
-```{r}
+```{r fig.width=6, fig.height=10}
 #| label: fig-planes
-#| fig-cap: Relationship between wing length and width
+#| fig-cap: Analyzing 1976-2021 Income Disparity Trends in Canada by Highest-to-Lowest Average Income Ratio
 #| echo: false
 #| warning: false
 #| message: false
-
-analysis_data <- read_csv(here::here("data/analysis_data/analysis_data.csv"))
-
-analysis_data |> 
-  ggplot(aes(x = width, y = length)) +
-  geom_point(alpha = 0.8) +
-  theme_minimal() +
-  labs(x = "Wing width (mm)",
-       y = "Wing length (mm)")
+income3 <- read_parquet(file = here::here("data/analysis_data/cleaned_income_data.parquet"),show_col_types = FALSE)
+income3 %>%
+  filter(
+         `Income decile` == "Total deciles",
+         `Geographical Location` != "Canada") %>%
+  ggplot(aes(x=Year, y=`Highest-to-Lowest Average Income Ratio`, colour = `Geographical Location`))+geom_point()+theme_minimal()+ylab("Average after-tax income range")
 ```
 
-Talk way more about it. 
+@fig-planes, the Highest-to-Lowest Average Income Ratio across Canadian provinces has shown a general upward trend, following a decline from 1980 to 1990. However, each province exhibits distinct performance. Notably, British Columbia's ratio surpasses that of other provinces. Given that this ratio reflects relative disparities and is heavily influenced by the lowest decile of average after-tax income for economic families and unattached individuals, deviations from the norm are evident in certain data points.
+```{r}
+#| label: fig-planes2
+#| fig-cap: Analyzing 1976-2021 Income Disparity Trends in Canada by Average after-tax Income Range
+#| echo: false
+#| warning: false
+#| message: false
+income3 <- read_csv(here::here("data/analysis_data/cleaned_income_data.csv"))
+income3 %>%
+  filter(
+         `Income decile` == "Total deciles",
+         `Geographical Location` != "Canada") %>%
+  ggplot(aes(x=Year, y=`Income Range`, colour = `Geographical Location`))+geom_point()+theme_minimal()+ylab("Average after-tax income range")
+```
 
 
+The @fig-planes2 illustrates another metric of income inequality: the variance between the lowest and highest deciles of average after-tax income for economic families and unattached individuals. This disparity is more pronounced compared to the Average after-tax Income Range. Each province displays distinct performance in this regard. Notably, Prince Edward Island's value remains lower than that of other provinces, suggesting relatively greater income equality within this region.
 
-# Model
+# Model {#sec-model}
 
-The goal of our modelling strategy is twofold. Firstly,...
+Through our exploratory data analysis, we uncovered compelling evidence suggesting a correlation between both the year and province variables and the level of income inequality across Canada. Notably, our observations indicate a linear relationship, with figures consistently showing upward trends over time. Given these findings, we are prompted to delve deeper into the analysis and forecast future trends in income inequality. To achieve this, we will develop a multiple linear regression model.
 
-Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
+We aim to investigate the association between the highest-to-lowest average income ratio of average after-tax income to the lowest decile of average after-tax income and the after-tax income gap, considering the factors of year, province. To accomplish this, we developed two distinct multiple linear regression models.
+
 
 ## Model set-up
 
-Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.  
 
-\begin{align} 
-y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
-\mu_i &= \alpha + \beta_i + \gamma_i\\
-\alpha &\sim \mbox{Normal}(0, 2.5) \\
-\beta &\sim \mbox{Normal}(0, 2.5) \\
-\gamma &\sim \mbox{Normal}(0, 2.5) \\
-\sigma &\sim \mbox{Exponential}(1)
-\end{align}
+
+
+\begin{equation}
+Y_{ij} = \beta_{0} + \beta_{1}Year_{i} + \beta_{2}Province_{j}  
+\end{equation}
+
+In Model 1:
+
+
+-   $Y_{ij}$ represents the highest-to-Lowest average income ratio of average after-tax income to the lowest decile of average after-tax income of Canada in $i^{th}$ year and province $j$.
+
+-   $\beta_{0}$ is the coefficient for intercept.
+
+-   $\beta_{1}$ represents the coefficient for the variable $Year_{i}$, capturing the effect of time (year) on income inequality. A positive coefficient suggests that income inequality tends to increase over time, while a negative coefficient suggests a decrease.
+
+-   $\beta_{2}$ represents the coefficient for the variable $Province_{j}$, indicating the effect of province on income inequality. It accounts for regional differences in income distribution within Canada.
+
+
+\begin{equation}
+Y_{ij} = \beta_{0}+\beta_{1}Year_{i}+\beta_{2}Province_{j}+\beta_{3}Year_{i}Province_{j}  
+\end{equation}
+
+In this model 2:
+
+-   $Y_{ij}$ represents the income range for a particular combination of year ($Year_{i}$) and geographical location ($Province_{j}$).
+
+-  $\beta_{0}$ is the intercept term, indicating the expected value of the income range when all other predictors are zero.
+
+- $\beta_{1}$ is the coefficient associated with the "Year" variable ($Year_{i}$), representing the effect of each unit change in the year on the income range, holding other variables constant.
+
+- $\beta_{2}$ is the coefficient associated with the "Geographical Location" variable (\(Province_{j}\)), representing the average difference in income range between different provinces, holding the year constant.
+
+- $\beta_{3}$ is the coefficient associated with the interaction term between "Year" and "Geographical Location" ($Year_{i}Province_{j}$), representing how the relationship between year and income range varies across different provinces.
+
+Essentially, this model aims to understand how income range is influenced by both the year of observation and the geographical location, as well as any interaction effects between these two variables. By fitting this model to the data, we can estimate the effects of year and province on income range and examine how these effects may differ across different provinces over time.
 
 We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
 
-
 ### Model justification
 
-We expect a positive relationship between the size of the wings and time spent aloft. In particular...
+The first model (Equation 1) aims to analyze the relationship between the highest-to-Lowest average income ratio ($Y_{ij}$) and two key predictors: year ($Year_{i}$) and geographical location ($Province_{j}$). $Y_{ij}$ represents the income inequality measure for a specific year and province. The coefficient $\beta_{0}$ captures the intercept, representing the baseline value of income ratio when all predictors are zero. $\beta_{1}$ signifies the effect of time (year) on income inequality, with a positive coefficient suggesting an increase in income inequality over time. Conversely, $\beta_{2}$ represents the effect of geographical location (province) on income inequality, accounting for regional disparities within Canada.
 
-We can use maths by including latex between dollar signs, for instance $\theta$.
+In the second model (Equation 2), $Y_{ij}$ denotes the income range for a particular combination of year and geographical location. The model includes an additional term, $\beta_{3}$, representing the interaction between year and geographical location ($Year_{i}Province_{j}$). This term captures how the relationship between year and income range varies across different provinces. The intercept $\beta_{0}$ still indicates the expected income range when all predictors are zero. $\beta_{1}$ represents the effect of year on income range, holding geographical location constant, while $\beta_{2}$ represents the average difference in income range between different provinces, holding the year constant. 
+
+The second model aims to understand how income range is influenced by both year and geographical location, including any interaction effects between these variables. These models were implemented using the `rstanarm` package in R, utilizing default priors for estimation [@citeR].
 
 
-# Results
 
-Our results are summarized in @tbl-modelresults.
+# Results {#sec-results}
+
+
+
+```{r figure5, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Difference between lowest and highest average after-tax income in the 10 provinces of Canada between 1976 and 2021", fig.width=10, fig.height=3}
+# plot the graph with the regression lines
+income <- read_csv(here::here("data/analysis_data/cleaned_income_data.csv"))
+income <- income %>%
+  filter(
+    `Income decile` == "Total deciles",
+    `Geographical Location` != "Canada")
+income %>%
+  ggplot(aes(x=Year, y=`Income Range`, colour = `Geographical Location`))+geom_point()+theme_minimal()+ylab("Highest-to-Lowest Average Income Ratio ")+geom_smooth(method='lm')
+```
 
 ```{r}
 #| echo: false
@@ -115,107 +234,129 @@ Our results are summarized in @tbl-modelresults.
 
 library(rstanarm)
 
-first_model <-
-  readRDS(file = here::here("models/first_model.rds"))
+income_model <-
+  readRDS(file = here::here("models/income_model2.rds"))
 ```
 
 ```{r}
 #| echo: false
 #| eval: true
-#| label: tbl-modelresults
-#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
 #| warning: false
+#| message: false
 
-modelsummary::modelsummary(
-  list(
-    "First model" = first_model
-  ),
-  statistic = "mad",
-  fmt = 2
-)
+library(rstanarm)
+
+income_range_model <-
+  readRDS(file = here::here("models/income_range_model.rds"))
 ```
 
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| label: tbl-modelresults
+#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
+
+
+library(modelsummary)
+modelsummary(income_model)
+```
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| label: tbl-modelresults2
+#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
+
+
+library(modelsummary)
+modelsummary(income_range_model)
+```
+
+@tbl-modelresults
+
+The regression results are as follows:
+
+- **Intercept:** The intercept term $\beta_{0}$ is estimated to be -105.803, with a standard error of 66.637.
+
+- **Year:** The coefficient for the variable $Year_{i}$ is estimated to be 0.063, with a standard error of 0.033. This suggests that, on average, the highest-to-Lowest average income ratio tends to increase by 0.063 units for each additional year.
+
+- **Geographical Location:** The model includes dummy variables representing different geographical locations in Canada. Each coefficient for a geographical location represents the difference in the highest-to-Lowest average income ratio compared to a reference location. For example, in British Columbia, the highest-to-Lowest average income ratio is estimated to be approximately 4.790 units higher compared to the reference location, with a standard error of 2.135.
 
 
 
-# Discussion
 
-## First discussion point {#sec-first-point}
 
-If my paper were 10 pages, then should be be at least 2.5 pages. The discussion is a chance to show off what you know and what you learnt from all this. 
 
-## Second discussion point
 
-## Third discussion point
+
+@tbl-modelresults2
+
+- **Intercept:** The intercept represents the estimated value of the dependent variable (income) when all other predictors are zero. In this model, the intercept is approximately -5187825.701 (standard error = 362856.933). However, it's essential to interpret the intercept cautiously, as it may not have a meaningful interpretation without further context.
+
+- **Year:** The coefficient for the variable "Year" represents the estimated change in income for a one-unit increase in the year. Here, the coefficient is approximately 2687.819 (standard error = 181.456). This suggests that income tends to increase by approximately 2687.819 units for each additional year.
+
+- **Geographical Location:** The coefficients for different geographical locations represent the difference in income compared to a reference location (likely omitted for model identification purposes). For example, in Atlantic provinces, income is estimated to be approximately 2604131.937 units higher compared to the reference location (standard error = 517326.344).
+
+- **Year × Geographical Location:** These interaction terms capture how the relationship between year and income varies across different provinces. For instance, the coefficient for "Year × Geographical LocationAtlantic provinces" is approximately -1328.096 (standard error = 258.800), indicating that the effect of year on income is modified by approximately -1328.096 units for each additional year in the Atlantic provinces.
+
+- **Model Fit Statistics:** The model fit statistics provide information about how well the model fits the data. The R-squared value (0.828) indicates that approximately 82.8% of the variance in income is explained by the model. The adjusted R-squared value (0.819) adjusts for the number of predictors in the model. Other statistics such as AIC (9641.2), BIC (9743.2), log-likelihood (-4795.606), F-statistic (86.738), and RMSE (14114.94) provide additional information about model fit and performance.
+
+Overall, this analysis helps understand the relationships between income and various predictors, including year, geographical location, and their interaction, providing insights into income dynamics and disparities within the study context.
+
+
+# Discussion {#sec-discussion}
+
+## Findings {#sec-first-point}
+
+This study examined income inequality in Canada from 1976 to 2021 using various survey data. Through data analysis and regression modeling, we found that income inequality has consistently increased over time and varies among provinces. Our key findings include a continual rise in income inequality, significant regional differences, and complex interactions between temporal trends and income distribution.
+
+Firstly, our analysis revealed a clear upward trend in income inequality over the study period, as indicated by the positive coefficient for the "Year" variable in our regression models. This suggests that income inequality has steadily worsened in Canada over the years. Secondly, we found notable differences in income inequality levels across provinces, with some regions experiencing higher disparities than others. Lastly, our examination of interaction effects highlighted how the relationship between income inequality and time varied across different provinces, emphasizing the importance of considering both temporal trends and regional disparities in addressing income inequality.
+
+In summary, our study provides valuable insights into income inequality dynamics in Canada, underscoring the need for policymakers to consider both temporal trends and regional differences when devising strategies to mitigate income inequality and promote economic equity.
+
+
+
+## Analyzing Temporal Trends in Income Inequality in Canada
+
+The widening income gap in Canada, particularly between the top and bottom 10%, has persisted since 1976 due to various socioeconomic factors.
+
+Firstly, changes in economic structure and globalization have favored certain industries and skill sets, leading to increased demand and higher wages for individuals with specialized education or in high-demand sectors. This has disproportionately benefited the top earners, contributing to their rising after-tax income @Autor2014.
+
+Additionally, government policies and tax reforms over the years have also played a role. Tax cuts and preferential treatment for high-income individuals and corporations may have further widened the income gap by allowing the wealthy to accumulate more wealth while providing limited benefits to low-income earners @Piketty2014.
+
+Furthermore, technological advancements and automation have transformed the labor market, leading to job polarization. While high-skilled jobs requiring advanced education or technical expertise have seen wage growth, low-skilled jobs have faced stagnation or even decline in wages. This has perpetuated income inequality as those at the top benefit from technological advancements, while those at the bottom struggle to keep up @Acemoglu2019.
+
+Moreover, systemic issues such as disparities in access to education, healthcare, and opportunities for upward mobility have also contributed to the widening income gap. Structural inequalities embedded within society perpetuate cycles of poverty, making it difficult for individuals from lower-income backgrounds to break free from economic hardship @Chetty2020.
+
+Overall, the combination of economic, policy, technological, and social factors has led to the widening income gap in Canada, highlighting the pressing need for comprehensive strategies to address income inequality and promote economic inclusion and equity for all segments of society.
+
+## Exploring Factors Contributing to Varied Income Inequality Across Canadian Provinces
+The disparity in income inequality between provinces in Canada can be attributed to a multitude of factors, including economic structure, industry composition, demographics, and government policies @smith2019. While some provinces like British Columbia exhibit higher ratios of the highest income to the lowest income and wider income gaps, others like Prince Edward Island (PEI) demonstrate comparatively lower values @jones2020. Several key reasons can elucidate why PEI may have lower income inequality metrics:
+
+Economic Structure: PEI's economic structure differs significantly from provinces like British Columbia. As a smaller province with a predominantly rural economy, PEI relies heavily on industries such as agriculture, fisheries, and tourism @canadaEconomicReport. These sectors often have more equitable income distributions compared to industries like finance or technology, which contribute to higher income inequality in provinces with more diversified economies.
+
+Population Size and Density: PEI's smaller population size and lower population density relative to provinces like British Columbia can influence income inequality. With a smaller labor force and fewer high-income earners, PEI may experience less income disparity @canadaCensus. Additionally, the close-knit communities and social cohesion in smaller provinces like PEI can contribute to a more equitable distribution of resources and opportunities @peiCommunityReport.
+
+Government Policies: Provincial government policies and social programs play a crucial role in mitigating income inequality. PEI's government may implement policies focused on social welfare, affordable housing, and income support programs to address economic disparities and ensure a more equitable distribution of wealth @peiGovernmentPolicy. These interventions can help reduce income inequality by providing assistance to low-income individuals and families.
+
+Industry Composition: The types of industries dominant in a province can impact income distribution. In PEI, industries like agriculture and fisheries may offer more uniform income levels across workers, resulting in lower income inequality @peiEconomicReview. Conversely, provinces with a higher concentration of high-paying industries, such as technology or finance, may experience wider income disparities.
+
+Cost of Living: Variations in the cost of living between provinces can influence income inequality. Provinces with lower costs of living, like PEI, may have lower income inequality as housing, healthcare, and other essential expenses consume a smaller portion of residents' incomes @canadaCostOfLiving. In contrast, provinces with higher costs of living may experience greater income disparities as a larger share of income is allocated to basic necessities.
+
+In summary, Prince Edward Island's lower values in terms of income inequality metrics can be attributed to its unique economic structure, smaller population size, government policies, industry composition, and cost of living compared to provinces like British Columbia. These factors collectively contribute to a more equitable distribution of income within the province.
+
 
 ## Weaknesses and next steps
 
-Weaknesses and next steps should also be included.
+One weakness of this study is the potential for omitted variable bias. Despite our efforts to include key variables such as year and geographical location in our regression models, there may still be unobserved factors influencing income inequality that are not accounted for in our analysis. These omitted variables could lead to biased estimates of the coefficients and affect the accuracy of our findings.
+
+Another weakness is the reliance on secondary data sources, such as surveys like the Survey of Consumer Finances (SCF), the Survey of Labour and Income Dynamics (SLID), and the Canadian Income Survey (CIS). While these datasets provide valuable information on income distribution, they may suffer from measurement error or sampling biases that could impact the reliability of our results. Additionally, the scope and coverage of these surveys may vary over time, which could introduce inconsistencies in our analysis.
+
+Studying income inequality across occupations represents a crucial next step in understanding the broader socio-economic landscape. This research avenue involves analyzing wage differentials, earnings distributions, and the role of education and skills in driving income variation within specific job categories. Additionally, exploring intersectional dynamics, such as the impact of gender, race, and ethnicity on income inequality within occupations, is essential. Longitudinal studies tracking changes in income differentials over time can provide insights into evolving trends and challenges. By uncovering disparities and systemic biases within the labor market, this research can inform evidence-based policy interventions aimed at promoting economic equity and opportunity for all workers.
 
 \newpage
-
-\appendix
-
-# Appendix {-}
-
-
-# Additional data details
-
-# Model details {#sec-model-details}
-
-## Posterior predictive check
-
-In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows...
-
-In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows... 
-
-```{r}
-#| eval: true
-#| echo: false
-#| message: false
-#| warning: false
-#| label: fig-ppcheckandposteriorvsprior
-#| layout-ncol: 2
-#| fig-cap: "Examining how the model fits, and is affected by, the data"
-#| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
-
-pp_check(first_model) +
-  theme_classic() +
-  theme(legend.position = "bottom")
-
-posterior_vs_prior(first_model) +
-  theme_minimal() +
-  scale_color_brewer(palette = "Set1") +
-  theme(legend.position = "bottom") +
-  coord_flip()
-```
-
-## Diagnostics
-
-@fig-stanareyouokay-1 is a trace plot. It shows... This suggests...
-
-@fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
-
-```{r}
-#| echo: false
-#| eval: true
-#| message: false
-#| warning: false
-#| label: fig-stanareyouokay
-#| fig-cap: "Checking the convergence of the MCMC algorithm"
-#| fig-subcap: ["Trace plot", "Rhat plot"]
-#| layout-ncol: 2
-
-plot(first_model, "trace")
-
-plot(first_model, "rhat")
-```
-
-
-
-\newpage
-
 
 # References
-
 
