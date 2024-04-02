@@ -6,7 +6,7 @@ author:
 thanks: "Code and data are available at: https://github.com/siru1366/income.git."
 date: today
 date-format: long
-abstract: "This paper investigates income inequality in Canada from 1976 to 2021 using data from various surveys. Through exploratory data analysis and regression modeling, we uncover increasing income inequality trends over time and variations across different provinces. Our findings reveal nuanced relationships between temporal trends, regional disparities, and income distribution dynamics. Through rigorous analysis, we uncover three key findings: a consistent rise in income inequality over time, significant regional disparities across provinces, and nuanced interactions between temporal trends and income distribution dynamics. Understanding these dynamics is crucial for policymakers to develop targeted strategies aimed at mitigating income inequality and promoting social and economic equity in Canada."
+abstract: "This paper investigates income inequality in Canada from 1976 to 2021 using data from various surveys. Through exploratory data analysis and regression modeling, we uncover increasing income inequality trends over time and variations across different provinces. Our findings reveal nuanced relationships between temporal trends and regional disparities, and income distribution dynamics. Through rigorous analysis, we uncover two key findings: a consistent rise in income inequality over time, significant regional disparities across provinces. Understanding these dynamics is crucial for policymakers to develop targeted strategies aimed at mitigating income inequality and promoting social and economic equity in Canada."
 format: pdf
 toc: true
 number-sections: true
@@ -17,16 +17,22 @@ bibliography: references.bib
 #| include: false
 #| warning: false
 #| message: false
-
+library(broom.mixed)
+library(beepr)
+library(broom)
+library(knitr)
+library(purrr)
+library(rstanarm)
+library(tidyverse)
 library(bayesplot)
 library(coda)
-library(tidyverse)
-library(palmerpenguins)
 library(kableExtra)
 library(dplyr)
 library(tidyr)
-library(knitr)
 library(arrow)
+library(modelsummary)
+
+
 ```
 
 # Introduction
@@ -34,9 +40,9 @@ Income inequality is a pressing socioeconomic issue that has garnered significan
 
 This paper aims to delve into the intricate dynamics of income inequality within Canada, focusing on the period from 1976 to 2021. Leveraging a comprehensive dataset spanning multiple surveys, including the Survey of Consumer Finances (SCF), the Survey of Labour and Income Dynamics (SLID), and the Canadian Income Survey (CIS), we embark on a rigorous exploration of income trends across different provinces and over time. By examining key variables such as year, geographical location, income decile, and income range, we seek to uncover patterns and nuances in income distribution dynamics.
 
-Despite numerous studies on income inequality in Canada, there remains a clear gap in understanding the specific drivers and mechanisms contributing to the widening income gap observed over the past four decades. To address this gap, we undertake a multifaceted analysis, encompassing exploratory data analysis and multiple linear regression modeling. Through this approach, we aim to elucidate the role of various factors, including temporal trends, regional disparities, and their interactions, in shaping income distribution patterns.
+Despite numerous studies on income inequality in Canada, there remains a clear gap in understanding the specific drivers and mechanisms contributing to the widening income gap observed over the past four decades. To address this gap, we undertake a multifaceted analysis, encompassing exploratory data analysis and multiple linear regression modeling. Through this approach, we aim to elucidate the role of various factors, including temporal trends, regional disparities, in shaping income distribution patterns.
 
-Temporal trends reveal a consistent increase in income inequality from 1976 to 2021. Geographical disparities highlight varying levels of income inequality across provinces, with Atlantic provinces and Quebec showing higher inequality compared to others. Interaction effects underscore the nuanced relationship between time and income inequality, indicating varying impacts across different provinces. Overall, these findings emphasize the multifaceted nature of income inequality dynamics in Canada, urging policymakers to consider both temporal trends and regional disparities when addressing this pressing socioeconomic issue.
+Temporal trends reveal a consistent increase in income inequality from 1976 to 2021. Geographical disparities highlight varying levels of income inequality across provinces, with Atlantic provinces and Quebec showing higher inequality compared to others.Overall, these findings emphasize the multifaceted nature of income inequality dynamics in Canada, urging policymakers to consider both temporal trends and regional disparities when addressing this pressing socioeconomic issue.
 
 The remainder of this paper is structured as follows. @sec-data introduces the data used for analysis and findings, including visualizations of the variables of interest, @sec-model
 proposes a straightforward linear regression model to examine and forecasts the effects of time (year) and geographical location (province) on income inequality in Canada.In @sec-results, we display the interpretations of the models alongside other findings from analyzing the data. @sec-discussion provides a discussion on the implications of the findings as well as the weaknesses of this paper and its next steps for further study on this subject.
@@ -112,7 +118,7 @@ income3 <- read_parquet(file = here::here("data/analysis_data/cleaned_income_dat
 income3 %>%
   filter(
          `Income decile` == "Lowest decile" | `Income decile` == "Total deciles"| `Income decile` == "Highest decile",
-         `Geographical Location` == "Canada") %>%
+         `Geographical_Location` == "Canada") %>%
   ggplot(aes(x=Year, y=Income, colour = `Income decile`))+geom_line()+theme_minimal()+ylab("Average after-tax income")
   
 
@@ -131,8 +137,8 @@ income3 <- read_parquet(file = here::here("data/analysis_data/cleaned_income_dat
 income3 %>%
   filter(
          `Income decile` == "Total deciles",
-         `Geographical Location` != "Canada") %>%
-  ggplot(aes(x=Year, y=`Highest-to-Lowest Average Income Ratio`, colour = `Geographical Location`))+geom_point()+theme_minimal()+ylab("Average after-tax income range")
+         `Geographical_Location` != "Canada") %>%
+  ggplot(aes(x=Year, y=`Highest-to-Lowest_Average_Income_Ratio`, colour = `Geographical_Location`))+geom_point()+theme_minimal()+ylab("Average after-tax income range")
 ```
 
 @fig-planes, the Highest-to-Lowest Average Income Ratio across Canadian provinces has shown a general upward trend, following a decline from 1980 to 1990. However, each province exhibits distinct performance. Notably, British Columbia's ratio surpasses that of other provinces. Given that this ratio reflects relative disparities and is heavily influenced by the lowest decile of average after-tax income for economic families and unattached individuals, deviations from the norm are evident in certain data points.
@@ -142,12 +148,12 @@ income3 %>%
 #| echo: false
 #| warning: false
 #| message: false
-income3 <- read_csv(here::here("data/analysis_data/cleaned_income_data.csv"))
-income3 %>%
+income4 <- read_parquet(file = here::here("data/analysis_data/cleaned_income_data.parquet"),show_col_types = FALSE)
+income4 %>%
   filter(
          `Income decile` == "Total deciles",
-         `Geographical Location` != "Canada") %>%
-  ggplot(aes(x=Year, y=`Income Range`, colour = `Geographical Location`))+geom_point()+theme_minimal()+ylab("Average after-tax income range")
+         `Geographical_Location` != "Canada") %>%
+  ggplot(aes(x=Year, y=`Income_Range`, colour = `Geographical_Location`))+geom_point()+theme_minimal()+ylab("Average after-tax income range")
 ```
 
 
@@ -164,14 +170,17 @@ We aim to investigate the association between the highest-to-lowest average inco
 
 
 
+begin{align}
+y_i|\mu_i, \sigma &\sim \text{Normal}(\mu_i, \sigma) \
+\mu_i &= \beta_0 + \beta_1 \times \text{Year}_i + \beta_2 \times \text{Geographical Location}_i\
+\beta_0 &\sim \text{Normal}(0, 2.5) \
+\beta_1 &\sim \text{Normal}(0, 2.5) \
+\beta_2 &\sim \text{Normal}(0, 2.5) \
+\sigma &\sim \text{Exponential}(1)
+\label{eq-Model2}
+\end{align}
 
-\begin{equation}
-Y_{ij} = \beta_{0} + \beta_{1}Year_{i} + \beta_{2}Province_{j}
-\label{eq-Model1}
-\end{equation}
-
-In Model (\ref{eq-Model1}):
-
+In Model (\ref{eq-Model1})is specified as follows:
 
 -   $Y_{ij}$ represents the highest-to-Lowest average income ratio of average after-tax income to the lowest decile of average after-tax income of Canada in $i^{th}$ year and province $j$.
 
@@ -181,13 +190,12 @@ In Model (\ref{eq-Model1}):
 
 -   $\beta_{2}$ represents the coefficient for the variable $Province_{j}$, indicating the effect of province on income inequality. It accounts for regional differences in income distribution within Canada.
 
-
 \begin{equation}
-Y_{ij} = \beta_{0}+\beta_{1}Year_{i}+\beta_{2}Province_{j}+\beta_{3}Year_{i}Province_{j} 
+Y_{ij} = \beta_{0} + \beta_{1}Year_{i} + \beta_{2}Province_{j}
 \label{eq-Model2}
 \end{equation}
 
-In this model (\ref{eq-Model2}):
+In Model (\ref{eq-Model2}):
 
 -   $Y_{ij}$ represents the income range for a particular combination of year ($Year_{i}$) and geographical location ($Province_{j}$).
 
@@ -197,19 +205,33 @@ In this model (\ref{eq-Model2}):
 
 - $\beta_{2}$ is the coefficient associated with the "Geographical Location" variable (\(Province_{j}\)), representing the average difference in income range between different provinces, holding the year constant.
 
-- $\beta_{3}$ is the coefficient associated with the interaction term between "Year" and "Geographical Location" ($Year_{i}Province_{j}$), representing how the relationship between year and income range varies across different provinces.
-
-Essentially, this model aims to understand how income range is influenced by both the year of observation and the geographical location, as well as any interaction effects between these two variables. By fitting this model to the data, we can estimate the effects of year and province on income range and examine how these effects may differ across different provinces over time.
 
 We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
 
 ## Model justification
 
-The first model (Equation 1) aims to analyze the relationship between the highest-to-Lowest average income ratio ($Y_{ij}$) and two key predictors: year ($Year_{i}$) and geographical location ($Province_{j}$). $Y_{ij}$ represents the income inequality measure for a specific year and province. The coefficient $\beta_{0}$ captures the intercept, representing the baseline value of income ratio when all predictors are zero. $\beta_{1}$ signifies the effect of time (year) on income inequality, with a positive coefficient suggesting an increase in income inequality over time. Conversely, $\beta_{2}$ represents the effect of geographical location (province) on income inequality, accounting for regional disparities within Canada.
+The first model (Equation 1) aims to capture the relationship between the response variable, $y_i$, representing the highest-to-lowest average income ratio of average after-tax income to the lowest decile of average after-tax income of Canada in the $i^{th}$ year and province $j$, and the predictor variables, $\text{Year}_i$ and $\text{Geographical Location}_i$.
 
-In the second model (Equation 2), $Y_{ij}$ denotes the income range for a particular combination of year and geographical location. The model includes an additional term, $\beta_{3}$, representing the interaction between year and geographical location ($Year_{i}Province_{j}$). This term captures how the relationship between year and income range varies across different provinces. The intercept $\beta_{0}$ still indicates the expected income range when all predictors are zero. $\beta_{1}$ represents the effect of year on income range, holding geographical location constant, while $\beta_{2}$ represents the average difference in income range between different provinces, holding the year constant. 
+The mean, $\mu_i$, is modeled as a linear combination of the intercept, $\beta_0$, and the coefficients for the predictor variables, $\beta_1$ for $\text{Year}_i$ and $\beta_2$ for $\text{Geographical Location}_i$. This allows us to assess the impact of time (year) and province on income inequality.
 
-The second model aims to understand how income range is influenced by both year and geographical location, including any interaction effects between these variables. These models were implemented using the `rstanarm` package in R, utilizing default priors for estimation [@citeR].
+The choice of priors for the coefficients, $\beta_0$, $\beta_1$, and $\beta_2$, as Normal distributions with mean 0 and a standard deviation of 2.5 reflects a weak prior assumption, indicating that we have no strong prior beliefs about the magnitude or direction of their effects.
+
+The standard deviation parameter, $\sigma$, is modeled using an Exponential distribution with a rate parameter of 1. This distribution allows for uncertainty in the variability of the response variable around the mean.
+
+Overall, this model provides a flexible framework for analyzing the relationship between income inequality and time, as well as geographical location, while incorporating uncertainty through the specification of appropriate prior distributions.
+
+
+Model (\ref{eq-Model2}) is formulated to explore the relationship between the income range ($Y_{ij}$) and the predictor variables, Year ($Year_{i}$), and Geographical Location ($Province_{j}$).
+
+$Y_{ij}$ represents the income range for a specific combination of year ($Year_{i}$) and geographical location ($Province_{j}$). This formulation allows us to examine how income ranges vary across different years and provinces.
+
+$\beta_{0}$ serves as the intercept term in the model, representing the expected value of the income range when all other predictors are zero. It provides a baseline reference point for comparison.
+
+$\beta_{1}$ is the coefficient associated with the "Year" variable ($Year_{i}$). This coefficient quantifies the effect of each unit change in the year on the income range, while holding all other variables constant. A positive coefficient suggests an increase in the income range over time, while a negative coefficient indicates a decrease.
+
+$\beta_{2}$ is the coefficient associated with the "Geographical Location" variable ($Province_{j}$). This coefficient captures the average difference in income range between different provinces, assuming the year remains constant. It allows us to assess the impact of geographical location on income disparities.
+
+Model (\ref{eq-Model2}) provides a structured framework for analyzing the factors influencing income range variations across different years and geographical locations. By examining the effects of both temporal and spatial factors, the model helps to elucidate patterns of income distribution and disparities within the studied context.
 
 
 
@@ -230,14 +252,16 @@ income %>%
 
 ```{r}
 #| echo: false
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 
 library(rstanarm)
 
-income_model <-
-  readRDS(file = here::here("models/income_model2.rds"))
+first_model <- 
+  readRDS(file = here::here("models/model2.rds"))
+
+
 ```
 
 ```{r}
@@ -248,20 +272,22 @@ income_model <-
 
 library(rstanarm)
 
-income_range_model <-
-  readRDS(file = here::here("models/income_range_model.rds"))
+second_model<- 
+  readRDS(file = here::here("models/model.rds"))
 ```
 
 ```{r}
 #| echo: false
-#| eval: true
+#| eval: false
 #| warning: false
 #| label: tbl-modelresults
-#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
+#| tbl-cap: "Summary results for first model"
 
-
-library(modelsummary)
-modelsummary(income_model)
+modelsummary(
+  list(
+    "Model 1" = first_model
+  ),fmt = 2
+)
 ```
 
 ```{r}
@@ -269,22 +295,40 @@ modelsummary(income_model)
 #| eval: true
 #| warning: false
 #| label: tbl-modelresults2
-#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
+#| tbl-cap: "Summary results for second model"
 
-
-library(modelsummary)
-modelsummary(income_range_model)
+modelsummary(
+  list(
+    "Model 2" = second_model
+  ),fmt = 2
+)
 ```
 
 @tbl-modelresults
 
 The regression results are as follows:
 
-- **Intercept:** The intercept term $\beta_{0}$ is estimated to be -105.803, with a standard error of 66.637.
+The results of Model 1 reveal several important findings regarding the relationship between the predictor variables and the highest-to-lowest average income ratio.
 
-- **Year:** The coefficient for the variable $Year_{i}$ is estimated to be 0.063, with a standard error of 0.033. This suggests that, on average, the highest-to-Lowest average income ratio tends to increase by 0.063 units for each additional year.
+Firstly, the intercept term is calculated to be -98.40, indicating the estimated average ratio when all other predictor variables are zero. This intercept provides a baseline for comparison against the effects of the other predictors.
 
-- **Geographical Location:** The model includes dummy variables representing different geographical locations in Canada. Each coefficient for a geographical location represents the difference in the highest-to-Lowest average income ratio compared to a reference location. For example, in British Columbia, the highest-to-Lowest average income ratio is estimated to be approximately 4.790 units higher compared to the reference location, with a standard error of 2.135.
+The coefficient for the variable "Year" is estimated to be 0.06. This positive coefficient suggests a slight increase in the highest-to-lowest average income ratio over time, although the effect appears to be relatively small.
+
+Furthermore, the coefficients for various provinces show differing effects on the income ratio compared to the reference category. For instance, provinces such as Alberta and British Columbia exhibit positive coefficients of 3.91 and 8.28, respectively, indicating higher average income ratios compared to the reference category. Conversely, provinces like Newfoundland and Labrador, Prince Edward Island, and New Brunswick demonstrate negative coefficients, suggesting lower average income ratios in these regions.
+
+Overall, the model's R-squared value of 0.149 indicates that approximately 14.9% of the variability in the highest-to-lowest average income ratio is explained by the predictor variables included in the model. Additionally, the adjusted R-squared value of 0.117 suggests that the model may slightly overestimate the true explanatory power due to the inclusion of additional predictors.
+
+The log likelihood of -1934.210 indicates the goodness-of-fit of the model, with lower values indicating a better fit. Furthermore, the root mean squared error (RMSE) of 8.25 provides a measure of the model's predictive accuracy, with smaller values indicating better predictive performance.
+
+In summary, Model 1 provides valuable insights into the factors influencing the highest-to-lowest average income ratio in Canada, highlighting the effects of time (Year) and geographical location (provinces) on income inequality. These findings contribute to a better understanding of regional disparities in income distribution and can inform policy decisions aimed at reducing inequality across different provinces.
+
+
+
+
+
+
+
+
 
 
 
@@ -295,17 +339,17 @@ The regression results are as follows:
 
 @tbl-modelresults2
 
-- **Intercept:** The intercept represents the estimated value of the dependent variable (income) when all other predictors are zero. In this model, the intercept is approximately -5187825.701 (standard error = 362856.933). However, it's essential to interpret the intercept cautiously, as it may not have a meaningful interpretation without further context.
+The results of the model reveal several significant findings regarding the relationship between the response variable and the predictor variables. Firstly, the intercept term is estimated to be -3309430.66, indicating the expected value of the response variable when all other predictors are zero. This intercept provides a reference point for comparison and interpretation of the effects of the other predictor variables.
 
-- **Year:** The coefficient for the variable "Year" represents the estimated change in income for a one-unit increase in the year. Here, the coefficient is approximately 2687.819 (standard error = 181.456). This suggests that income tends to increase by approximately 2687.819 units for each additional year.
+The coefficient for the variable "Year" is calculated to be 1730.57. This positive coefficient suggests that there is an average increase of 1730.57 units in the response variable for each unit increase in the year, holding all other variables constant. This implies that over time, there is a general upward trend in the response variable.
 
-- **Geographical Location:** The coefficients for different geographical locations represent the difference in income compared to a reference location (likely omitted for model identification purposes). For example, in Atlantic provinces, income is estimated to be approximately 2604131.937 units higher compared to the reference location (standard error = 517326.344).
+Furthermore, the coefficients associated with the different geographical locations (provinces) indicate the average difference in the response variable compared to the reference category. For instance, provinces like Ontario, Prairie Provinces, Alberta, and British Columbia exhibit positive coefficients, suggesting higher values of the response variable compared to the reference category. Conversely, provinces like Atlantic Provinces, Newfoundland and Labrador, Prince Edward Island, Nova Scotia, New Brunswick, Quebec, and Manitoba demonstrate negative coefficients, indicating lower values of the response variable in these regions.
 
-- **Year × Geographical Location:** These interaction terms capture how the relationship between year and income varies across different provinces. For instance, the coefficient for "Year × Geographical LocationAtlantic provinces" is approximately -1328.096 (standard error = 258.800), indicating that the effect of year on income is modified by approximately -1328.096 units for each additional year in the Atlantic provinces.
+Overall, the model demonstrates a good fit to the data, as indicated by the high values of R-squared (0.794) and adjusted R-squared (0.787). These metrics suggest that approximately 79.4% of the variability in the response variable is explained by the predictor variables included in the model. Additionally, the log likelihood value of -6054.760 indicates a good fit of the model to the data.
 
-- **Model Fit Statistics:** The model fit statistics provide information about how well the model fits the data. The R-squared value (0.828) indicates that approximately 82.8% of the variance in income is explained by the model. The adjusted R-squared value (0.819) adjusts for the number of predictors in the model. Other statistics such as AIC (9641.2), BIC (9743.2), log-likelihood (-4795.606), F-statistic (86.738), and RMSE (14114.94) provide additional information about model fit and performance.
+In summary, the results provide valuable insights into the factors influencing the response variable, as well as the overall fit and predictive performance of the model. These findings contribute to a better understanding of the relationships between the predictor variables and the response variable, which can inform decision-making and policy development in relevant contexts.
 
-Overall, this analysis helps understand the relationships between income and various predictors, including year, geographical location, and their interaction, providing insights into income dynamics and disparities within the study context.
+
 
 
 # Discussion {#sec-discussion}
@@ -314,7 +358,7 @@ Overall, this analysis helps understand the relationships between income and var
 
 This study examined income inequality in Canada from 1976 to 2021 using various survey data. Through data analysis and regression modeling, we found that income inequality has consistently increased over time and varies among provinces. Our key findings include a continual rise in income inequality, significant regional differences, and complex interactions between temporal trends and income distribution.
 
-Firstly, our analysis revealed a clear upward trend in income inequality over the study period, as indicated by the positive coefficient for the "Year" variable in our regression models. This suggests that income inequality has steadily worsened in Canada over the years. Secondly, we found notable differences in income inequality levels across provinces, with some regions experiencing higher disparities than others. Lastly, our examination of interaction effects highlighted how the relationship between income inequality and time varied across different provinces, emphasizing the importance of considering both temporal trends and regional disparities in addressing income inequality.
+Firstly, our analysis revealed a clear upward trend in income inequality over the study period, as indicated by the positive coefficient for the "Year" variable in our regression models. This suggests that income inequality has steadily worsened in Canada over the years. Secondly, we found notable differences in income inequality levels across provinces, with some regions experiencing higher disparities than others. 
 
 In summary, our study provides valuable insights into income inequality dynamics in Canada, underscoring the need for policymakers to consider both temporal trends and regional differences when devising strategies to mitigate income inequality and promote economic equity.
 

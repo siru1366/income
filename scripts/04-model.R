@@ -14,96 +14,99 @@ library(rstanarm)
 library(tidymodels)
 library(dplyr)
 library(arrow)
-set.seed(10666)
 
-income <- read_parquet(file = here::here("data/analysis_data/cleaned_income_data.parquet"))
-
-### Model data ####
-income_model <- income %>%
+income_data <- read_parquet(file = here::here("data/analysis_data/cleaned_income_data.parquet"))
+income_model <- income_data %>%
   filter(
     `Income decile` == "Total deciles",
-    `Geographical Location` != "Canada")
+    `Geographical_Location` != "Canada")
+income_model <- income_model %>% 
+  rename(Ratio= `Highest-to-Lowest_Average_Income_Ratio`)
 
-income_model_split <- 
-  initial_split(data = income_model, 
-                prop = 0.80)
-income_model_train <- training(income_model_split)
-model1 <- lm(`Highest-to-Lowest Average Income Ratio`~Year+`Geographical Location`+Year*`Geographical Location`, data = income_model_train)
+# Assuming income_mode is your dataset
+
+### Model data ####
+# Assuming income_mode is your dataset
+income_model$Atlantic_provinces <- ifelse(income_model$Geographical_Location == "Atlantic provinces", 1, 0)
+income_model$Newfoundland_and_Labrador <- ifelse(income_model$Geographical_Location == "Newfoundland and Labrador", 1, 0)
+income_model$Prince_Edward_Island <- ifelse(income_model$Geographical_Location == "Prince Edward Island", 1, 0)
+income_model$Nova_Scotia <- ifelse(income_model$Geographical_Location == "Nova Scotia", 1, 0)
+income_model$New_Brunswick <- ifelse(income_model$Geographical_Location == "New Brunswick", 1, 0)
+income_model$Quebec <- ifelse(income_model$Geographical_Location == "Quebec", 1, 0)
+income_model$Ontario <- ifelse(income_model$Geographical_Location == "Ontario", 1, 0)
+income_model$Prairie_provinces <- ifelse(income_model$Geographical_Location == "Prairie provinces", 1, 0)
+income_model$Manitoba <- ifelse(income_model$Geographical_Location == "Manitoba", 1, 0)
+income_model$Alberta<- ifelse(income_model$Geographical_Location == "Alberta", 1, 0)
+income_model$Saskatchewan<- ifelse(income_model$Geographical_Location == "Saskatchewan", 1, 0)
+income_model$British_Columbia<- ifelse(income_model$Geographical_Location == "British Columbia", 1, 0)
 
 
 
-#### Save model ####
-saveRDS(
-  model1,
-  file = "models/income_model.rds"
-)
-
-set.seed(10667)
 
 
-sim_run_data_first_model_rstanarm <- stan_glm(
-  formula = `Highest-to-Lowest Average Income Ratio` ~ Year + `Geographical Location`,
-  data = income_model_train,
+
+
+
+income_range_model <- 
+  stan_glm(
+  formula = `Income_Range` ~ Year + Geographical_Location,
+  data = income_model,
   family = gaussian(),
-  prior = normal(location = 0, scale = 2.5),
-  prior_intercept = normal(location = 0, scale = 2.5),
-  prior_aux = exponential(rate = 1),
+  prior = normal(location = 0, scale = 2.5, autoscale = TRUE),
+  prior_intercept = normal(location = 0, scale = 2.5, autoscale = TRUE),
+  prior_aux = exponential(rate = 1, autoscale = TRUE),
   seed = 853
 )
 
 
-saveRDS(
-  sim_run_data_first_model_rstanarm,
-  file = "models/sim_run_data_first_model_rstanarm.rds"
-)
-
-set.seed(10665)
-
-#### Read data ####
-income <- read_csv("data/analysis_data/cleaned_income_data.csv")
-
-### Model data ####
-income_model <- income %>%
-  filter(
-    `Income decile` == "Total deciles",
-    `Geographical Location` != "Canada")
-
-income_model_split <- 
-  initial_split(data = income_model, 
-                prop = 0.80)
-income_model_train <- training(income_model_split)
-model2 <- lm(`Income Range`~Year+`Geographical Location`+Year*`Geographical Location`, data = income_model_train)
-
-
 
 #### Save model ####
 saveRDS(
-  model2,
+  income_range_model,
   file = "models/income_range_model.rds"
 )
 
+model <- 
+  stan_glm(
+    formula = `Income_Range` ~ Year + Atlantic_provinces + Newfoundland_and_Labrador+Prince_Edward_Island +
+      Nova_Scotia+ New_Brunswick+Ontario+Quebec+Prairie_provinces+Manitoba+Saskatchewan+Alberta+British_Columbia,
+    data = income_model,
+    family = gaussian(),
+    prior = normal(location = 0, scale = 2.5, autoscale = TRUE),
+    prior_intercept = normal(location = 0, scale = 2.5, autoscale = TRUE),
+    prior_aux = exponential(rate = 1, autoscale = TRUE),
+    seed = 853
+  )
 
-set.seed(10663)
 
-#### Read data ####
-income <- read_csv("data/analysis_data/cleaned_income_data.csv")
 
-### Model data ####
-income_model <- income %>%
-  filter(
-    `Income decile` == "Total deciles",
-    `Geographical Location` != "Canada")
+#### Save model ####
+saveRDS(
+  model,
+  file = "models/model.rds"
+)
 
-income_model_split <- 
-  initial_split(data = income_model, 
-                prop = 0.80)
-income_model_train <- training(income_model_split)
-model2 <- lm(`Highest-to-Lowest Average Income Ratio`~Year+`Geographical Location`, data = income_model_train)
+model2 <- 
+  stan_glm(
+    formula = Ratio ~ Year + Atlantic_provinces + Newfoundland_and_Labrador+Prince_Edward_Island +
+      Nova_Scotia+ New_Brunswick+Ontario+Quebec+Prairie_provinces+Manitoba+Saskatchewan+Alberta+British_Columbia,
+    data = income_model,
+    family = gaussian(),
+    prior = normal(location = 0, scale = 2.5, autoscale = TRUE),
+    prior_intercept = normal(location = 0, scale = 2.5, autoscale = TRUE),
+    prior_aux = exponential(rate = 1, autoscale = TRUE),
+    seed = 853
+  )
 
 
 
 #### Save model ####
 saveRDS(
   model2,
-  file = "models/income_model2.rds"
+  file = "models/model2.rds"
 )
+
+
+
+
+

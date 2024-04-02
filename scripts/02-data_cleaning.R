@@ -21,7 +21,7 @@ raw_data <- raw_data %>%
 
 # Rename some variables
 raw_data <- raw_data %>% 
-  rename(Year = REF_DATE, `Geographical Location` = GEO, Income = VALUE)
+  rename(Year = REF_DATE, `Geographical_Location` = GEO, Income = VALUE)
 
 raw1_data <- raw_data %>%
   filter(`Income concept`%in% c("After-tax income"),
@@ -32,7 +32,7 @@ raw1_data <- raw_data %>%
   select(!`Economic family type`)
 
 raw2_data <- raw1_data %>%
-  mutate(`Highest-to-Lowest Average Income Ratio` = ifelse(`Income decile` == "Total deciles", 0, NA))
+  mutate(`Highest-to-Lowest_Average_Income_Ratio` = ifelse(`Income decile` == "Total deciles", 0, NA))
 
 for(i in 1:nrow(raw2_data)) {
   if (raw2_data[i,3] == "Total deciles") {
@@ -46,7 +46,7 @@ for(i in 1:nrow(raw2_data)) {
 }
 
 raw3_data <- raw2_data %>%
-  mutate(` Income Range` = ifelse(`Income decile` == "Total deciles", 0, NA))
+  mutate(`Income_Range` = ifelse(`Income decile` == "Total deciles", 0, NA))
 
 for(i in 1:nrow(raw3_data)) {
   if (raw3_data[i,3] == "Total deciles") {
@@ -60,7 +60,7 @@ for(i in 1:nrow(raw3_data)) {
 }
 
 cleaned_data <- raw3_data %>%
-  drop_na(Year, `Geographical Location`, `Income decile`, Income)      
+  drop_na(Year, `Geographical_Location`, `Income decile`, Income)      
 
  
 
