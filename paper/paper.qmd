@@ -166,10 +166,11 @@ We aim to investigate the association between the highest-to-lowest average inco
 
 
 \begin{equation}
-Y_{ij} = \beta_{0} + \beta_{1}Year_{i} + \beta_{2}Province_{j}  
+Y_{ij} = \beta_{0} + \beta_{1}Year_{i} + \beta_{2}Province_{j}
+\label{eq-Model1}
 \end{equation}
 
-In Model 1:
+In Model (\ref{eq-Model1}):
 
 
 -   $Y_{ij}$ represents the highest-to-Lowest average income ratio of average after-tax income to the lowest decile of average after-tax income of Canada in $i^{th}$ year and province $j$.
@@ -182,10 +183,11 @@ In Model 1:
 
 
 \begin{equation}
-Y_{ij} = \beta_{0}+\beta_{1}Year_{i}+\beta_{2}Province_{j}+\beta_{3}Year_{i}Province_{j}  
+Y_{ij} = \beta_{0}+\beta_{1}Year_{i}+\beta_{2}Province_{j}+\beta_{3}Year_{i}Province_{j} 
+\label{eq-Model2}
 \end{equation}
 
-In this model 2:
+In this model (\ref{eq-Model2}):
 
 -   $Y_{ij}$ represents the income range for a particular combination of year ($Year_{i}$) and geographical location ($Province_{j}$).
 
@@ -201,7 +203,7 @@ Essentially, this model aims to understand how income range is influenced by bot
 
 We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
 
-### Model justification
+## Model justification
 
 The first model (Equation 1) aims to analyze the relationship between the highest-to-Lowest average income ratio ($Y_{ij}$) and two key predictors: year ($Year_{i}$) and geographical location ($Province_{j}$). $Y_{ij}$ represents the income inequality measure for a specific year and province. The coefficient $\beta_{0}$ captures the intercept, representing the baseline value of income ratio when all predictors are zero. $\beta_{1}$ signifies the effect of time (year) on income inequality, with a positive coefficient suggesting an increase in income inequality over time. Conversely, $\beta_{2}$ represents the effect of geographical location (province) on income inequality, accounting for regional disparities within Canada.
 
