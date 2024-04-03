@@ -186,7 +186,7 @@ In Model (\ref{eq-model1})is specified as follows:
 
 -   $\beta_{1}$ represents the coefficient for the variable $Year_{i}$, capturing the effect of time (year) on income inequality. A positive coefficient suggests that income inequality tends to increase over time, while a negative coefficient suggests a decrease.
 
--   $\beta_{2}$ represents the coefficient for the variable $Province_{j}$, indicating the effect of province on income inequality. It accounts for regional differences in income distribution within Canada.
+-   $\beta_{2}$ represents the coefficient for the variable $Province_{i}$, indicating the effect of province on income inequality. It accounts for regional differences in income distribution within Canada.
 
 \begin{align}
 y_i|\mu_i, \sigma &\sim \text{Normal}(\mu_i, \sigma) \\
@@ -201,20 +201,20 @@ y_i|\mu_i, \sigma &\sim \text{Normal}(\mu_i, \sigma) \\
 In Model (\ref{eq-model2}):
 
 
--   $Y_{i}$ represents the income range for a particular combination of year ($Year_{i}$) and geographical location ($Province_{j}$).
+-   $Y_{i}$ represents the income range for a particular combination of year ($Year_{i}$) and geographical location ($Province_{i}$).
 
 -  $\beta_{0}$ is the intercept term, indicating the expected value of the income range when all other predictors are zero.
 
 - $\beta_{1}$ is the coefficient associated with the "Year" variable ($Year_{i}$), representing the effect of each unit change in the year on the income range, holding other variables constant.
 
-- $\beta_{2}$ is the coefficient associated with the "Geographical Location" variable (\(Province_{j}\)), representing the average difference in income range between different provinces, holding the year constant.
+- $\beta_{2}$ is the coefficient associated with the "Geographical Location" variable (\(Province_{i}\)), representing the average difference in income range between different provinces, holding the year constant.
 
 
 We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
 
 ## Model justification
 
-The first model (Equation 1) aims to capture the relationship between the response variable, $y_i$, representing the highest-to-lowest average income ratio of average after-tax income to the lowest decile of average after-tax income of Canada in the $i^{th}$ year and province $j$, and the predictor variables, $\text{Year}_i$ and $\text{Geographical Location}_i$.
+The first model (Equation 1) aims to capture the relationship between the response variable, $y_i$, representing the highest-to-lowest average income ratio of average after-tax income to the lowest decile of average after-tax income of Canada in the $i^{th}$ year and province $i$, and the predictor variables, $\text{Year}_i$ and $\text{Geographical Location}_i$.
 
 The mean, $\mu_i$, is modeled as a linear combination of the intercept, $\beta_0$, and the coefficients for the predictor variables, $\beta_1$ for $\text{Year}_i$ and $\beta_2$ for $\text{Geographical Location}_i$. This allows us to assess the impact of time (year) and province on income inequality.
 
@@ -225,9 +225,9 @@ The standard deviation parameter, $\sigma$, is modeled using an Exponential dist
 Overall, this model provides a flexible framework for analyzing the relationship between income inequality and time, as well as geographical location, while incorporating uncertainty through the specification of appropriate prior distributions.
 
 
-Model (\ref{eq-model2}) is formulated to explore the relationship between the income range ($Y_{ij}$) and the predictor variables, Year ($Year_{i}$), and Geographical Location ($Province_{j}$).
+Model (\ref{eq-model2}) is formulated to explore the relationship between the income range ($Y_{i}$) and the predictor variables, Year ($Year_{i}$), and Geographical Location ($Province_{i}$).
 
-$Y_{ij}$ represents the income range for a specific combination of year ($Year_{i}$) and geographical location ($Province_{i}$). This formulation allows us to examine how income ranges vary across different years and provinces.
+$Y_{i}$ represents the income range for a specific combination of year ($Year_{i}$) and geographical location ($Province_{i}$). This formulation allows us to examine how income ranges vary across different years and provinces.
 
 $\beta_{0}$ serves as the intercept term in the model, representing the expected value of the income range when all other predictors are zero. It provides a baseline reference point for comparison.
 
