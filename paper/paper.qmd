@@ -38,7 +38,7 @@ library(modelsummary)
 # Introduction
 Income inequality is a pressing socioeconomic issue that has garnered significant attention worldwide, with Canada being no exception. Over the past few decades, Canada has witnessed a widening gap in per capita after-tax income, raising concerns about economic disparities and social justice. Understanding the drivers behind this trend is crucial for policymakers and researchers alike, as it provides insights into the factors influencing income distribution and informs strategies to mitigate inequality.
 
-This paper aims to delve into the intricate dynamics of income inequality within Canada, focusing on the period from 1976 to 2021. Leveraging a comprehensive dataset spanning multiple surveys, including the Survey of Consumer Finances (SCF), the Survey of Labour and Income Dynamics (SLID), and the Canadian Income Survey (CIS), we embark on a rigorous exploration of income trends across different provinces and over time. By examining key variables such as year, geographical location, income decile, and income range, we seek to uncover patterns and nuances in income distribution dynamics.
+This paper aims to investigate the intricate dynamics of income inequality within Canada, focusing on the period from 1976 to 2021. Leveraging a comprehensive dataset spanning multiple surveys, including the Survey of Consumer Finances (SCF), the Survey of Labour and Income Dynamics (SLID), and the Canadian Income Survey (CIS), we embark on a rigorous exploration of income trends across different provinces and over time. By examining key variables such as year, geographical location, income decile, and income range, we seek to uncover patterns and nuances in income distribution dynamics.
 
 Despite numerous studies on income inequality in Canada, there remains a clear gap in understanding the specific drivers and mechanisms contributing to the widening income gap observed over the past four decades. To address this gap, we undertake a multifaceted analysis, encompassing exploratory data analysis and multiple linear regression modeling. Through this approach, we aim to elucidate the role of various factors, including temporal trends, regional disparities, in shaping income distribution patterns.
 
@@ -284,24 +284,14 @@ second_model<-
 #| echo: false
 #| eval: true
 #| warning: false
-#| message: false
-# Define the data with estimates and standard errors
-model_data <- data.frame(
-  Statistics = c("(Intercept)", "Year", "Atlantic_provinces", "Newfoundland_and_Labrador", "Prince_Edward_Island",
-                 "Nova_Scotia", "New_Brunswick", "Ontario", "Quebec", "Prairie_provinces", "Manitoba",
-                 "Saskatchewan", "Alberta", "British_Columbia", "Num.Obs.", "R2", "R2 Adj.", "Log.Lik.",
-                 "ELPD", "ELPD s.e.", "LOOIC", "LOOIC s.e.", "WAIC", "RMSE"),
-  `Model 1` = c(-98.40, 0.06, -1.58, -2.67, -3.46, -0.62, -2.18, 1.89, -1.27, 2.02, 1.69, 1.24,
-                3.91, 8.28, 548, 0.149, 0.117, -1934.210, -1980.6, 179.8, 3961.3, 359.7, 4017.7, 8.25),
-  `Model 2` = c(-3309430.66, 1730.57, -13468.48, -11078.95, -22687.77, -11326.18, -17165.81, 33650.23,
-                -7362.01, 24926.00, -1361.96, 4635.91, 37632.83, 19472.97, 548, 0.794, 0.787, -6054.760,
-                -6067.2, 16.8, 12134.3, 33.6, 12134.3, 15436.02))
-  
 
-# Generate the table using kable
-kable(model_data, format = "markdown")
-
-
+modelsummary::modelsummary(
+  list(
+    "Model 1" = first_model,
+    "Model 2" = second_model
+  ), statistic = "mad",
+  fmt = 2
+)
 
 ```
 
