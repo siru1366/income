@@ -23,10 +23,10 @@ income_model <- income_data %>%
 income_model <- income_model %>% 
   rename(Ratio= `Highest-to-Lowest_Average_Income_Ratio`)
 
-# Assuming income_mode is your dataset
+
 
 ### Model data ####
-# Assuming income_mode is your dataset
+
 income_model$Atlantic_provinces <- ifelse(income_model$Geographical_Location == "Atlantic provinces", 1, 0)
 income_model$Newfoundland_and_Labrador <- ifelse(income_model$Geographical_Location == "Newfoundland and Labrador", 1, 0)
 income_model$Prince_Edward_Island <- ifelse(income_model$Geographical_Location == "Prince Edward Island", 1, 0)
@@ -43,28 +43,6 @@ income_model$British_Columbia<- ifelse(income_model$Geographical_Location == "Br
 
 
 
-
-
-
-
-income_range_model <- 
-  stan_glm(
-  formula = `Income_Range` ~ Year + Geographical_Location,
-  data = income_model,
-  family = gaussian(),
-  prior = normal(location = 0, scale = 2.5, autoscale = TRUE),
-  prior_intercept = normal(location = 0, scale = 2.5, autoscale = TRUE),
-  prior_aux = exponential(rate = 1, autoscale = TRUE),
-  seed = 853
-)
-
-
-
-#### Save model ####
-saveRDS(
-  income_range_model,
-  file = "models/income_range_model.rds"
-)
 
 model <- 
   stan_glm(
