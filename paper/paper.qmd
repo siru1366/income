@@ -161,9 +161,13 @@ The @fig-planes2 illustrates another metric of income inequality: the variance b
 
 # Model {#sec-model}
 
-Through our exploratory data analysis, we uncovered compelling evidence suggesting a correlation between both the year and province variables and the level of income inequality across Canada. Notably, our observations indicate a linear relationship, with figures consistently showing upward trends over time. Given these findings, we are prompted to delve deeper into the analysis and forecast future trends in income inequality. To achieve this, we will develop a multiple linear regression model.
+In this section, we briefly discuss Bayesian models that are being used in this analysis.
 
-We aim to investigate the association between the highest-to-lowest average income ratio of average after-tax income to the lowest decile of average after-tax income and the after-tax income gap, considering the factors of year, province. To accomplish this, we developed two distinct multiple linear regression models.
+We develop two separate models to delve into the dynamics of income inequality and range variations in Canada.
+
+The first model focuses on examining the relationship between the highest-to-lowest average income ratio of average after-tax income to the lowest decile of average after-tax income and predictor variables such as year and geographical location. This model allows us to assess how income inequality changes over time and varies across different regions.
+
+The second model aims to explore the factors influencing income range variations, considering variables such as the year and geographical location. This model helps us understand how income ranges differ over time and across various provinces within Canada.
 
 
 ## Model set-up
