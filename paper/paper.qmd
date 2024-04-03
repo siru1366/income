@@ -294,19 +294,6 @@ modelsummary(
 )
 ```
 
-```{r}
-#| echo: false
-#| eval: true
-#| warning: false
-#| label: tbl-modelresults2
-#| tbl-cap: "Summary results for second model"
-
-modelsummary(
-  list(
-    "Model 2" = second_model
-  ),fmt = 2
-)
-```
 
 
 @tbl-modelresults
