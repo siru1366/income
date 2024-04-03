@@ -168,8 +168,6 @@ We aim to investigate the association between the highest-to-lowest average inco
 
 ## Model set-up
 
-
-
 begin{align}
 y_i|\mu_i, \sigma &\sim \text{Normal}(\mu_i, \sigma) \
 \mu_i &= \beta_0 + \beta_1 \times \text{Year}_i + \beta_2 \times \text{Geographical Location}_i\
@@ -200,6 +198,7 @@ y_i|\mu_i, \sigma &\sim \text{Normal}(\mu_i, \sigma) \
 \end{align}
 
 In Model (\ref{eq-Model2}):
+
 
 -   $Y_{ij}$ represents the income range for a particular combination of year ($Year_{i}$) and geographical location ($Province_{j}$).
 
@@ -280,23 +279,34 @@ second_model<-
   readRDS(file = here::here("models/model.rds"))
 ```
 
-```{r}
-#| echo: false
-#| eval: false
-#| warning: false
-#| label: tbl-modelresults
-#| tbl-cap: "Summary results for first model"
 
-modelsummary(
+```{r}
+#| label: tbl-model1
+#| tbl-cap: "Summary results for first model"
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+library(rstanarm)
+
+first_model <- 
+  readRDS(file = here::here("models/model2.rds"))
+
+
+second_model<- 
+  readRDS(file = here::here("models/model.rds"))
+
+modelsummary::modelsummary(
   list(
-    "Model 1" = first_model
-  ),fmt = 2
+    "Model 1" = first_model,
+    "Model 2" = second_model
+  ), statistic = "mad",
+  fmt = 2
 )
+
 ```
 
-
-
-@tbl-modelresults
+@tbl-model1
 
 The regression results are as follows:
 
