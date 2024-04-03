@@ -168,19 +168,19 @@ We aim to investigate the association between the highest-to-lowest average inco
 
 ## Model set-up
 
-begin{align}
-y_i|\mu_i, \sigma &\sim \text{Normal}(\mu_i, \sigma) \
-\mu_i &= \beta_0 + \beta_1 \times \text{Year}_i + \beta_2 \times \text{Geographical Location}_i\
-\beta_0 &\sim \text{Normal}(0, 2.5) \
-\beta_1 &\sim \text{Normal}(0, 2.5) \
-\beta_2 &\sim \text{Normal}(0, 2.5) \
-\sigma &\sim \text{Exponential}(1)
-\label{eq-Model2}
+\begin{align}
+y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
+\mu_i &= \beta_0 + \beta_1 \times \mbox{Year}_i + \beta_2 \times \mbox{Geographical Location}_i\\
+\beta_0 &\sim \mbox{Normal}(0, 2.5) \\
+\beta_1 &\sim \mbox{Normal}(0, 2.5) \\
+\beta_2 &\sim \mbox{Normal}(0, 2.5) \\
+\sigma &\sim \mbox{Exponential}(1)
+\label{eq-model1}
 \end{align}
 
-In Model (\ref{eq-Model1})is specified as follows:
+In Model (\ref{eq-model1})is specified as follows:
 
--   $Y_{ij}$ represents the highest-to-Lowest average income ratio of average after-tax income to the lowest decile of average after-tax income of Canada in $i^{th}$ year and province $j$.
+-   $Y_{i}$ represents the highest-to-Lowest average income ratio of average after-tax income to the lowest decile of average after-tax income of Canada in $i^{th}$ year and province $i$.
 
 -   $\beta_{0}$ is the coefficient for intercept.
 
@@ -188,19 +188,20 @@ In Model (\ref{eq-Model1})is specified as follows:
 
 -   $\beta_{2}$ represents the coefficient for the variable $Province_{j}$, indicating the effect of province on income inequality. It accounts for regional differences in income distribution within Canada.
 
-y_i|\mu_i, \sigma &\sim \text{Normal}(\mu_i, \sigma) \
-\mu_i &= \beta_0 + \beta_1 \times \text{Year}_i + \beta_2 \times \text{Geographical Location}_i\
-\beta_0 &\sim \text{Normal}(0, 2.5) \
-\beta_1 &\sim \text{Normal}(0, 2.5) \
-\beta_2 &\sim \text{Normal}(0, 2.5) \
+\begin{align}
+y_i|\mu_i, \sigma &\sim \text{Normal}(\mu_i, \sigma) \\
+\mu_i &= \beta_0 + \beta_1 \times \text{Year}_i + \beta_2 \times \text{Geographical Location}_i\\
+\beta_0 &\sim \text{Normal}(0, 2.5) \\
+\beta_1 &\sim \text{Normal}(0, 2.5) \\
+\beta_2 &\sim \text{Normal}(0, 2.5) \\
 \sigma &\sim \text{Exponential}(1)
-\label{eq-Model2}
+\label{eq-model2}
 \end{align}
 
-In Model (\ref{eq-Model2}):
+In Model (\ref{eq-model2}):
 
 
--   $Y_{ij}$ represents the income range for a particular combination of year ($Year_{i}$) and geographical location ($Province_{j}$).
+-   $Y_{i}$ represents the income range for a particular combination of year ($Year_{i}$) and geographical location ($Province_{j}$).
 
 -  $\beta_{0}$ is the intercept term, indicating the expected value of the income range when all other predictors are zero.
 
@@ -224,17 +225,17 @@ The standard deviation parameter, $\sigma$, is modeled using an Exponential dist
 Overall, this model provides a flexible framework for analyzing the relationship between income inequality and time, as well as geographical location, while incorporating uncertainty through the specification of appropriate prior distributions.
 
 
-Model (\ref{eq-Model2}) is formulated to explore the relationship between the income range ($Y_{ij}$) and the predictor variables, Year ($Year_{i}$), and Geographical Location ($Province_{j}$).
+Model (\ref{eq-model2}) is formulated to explore the relationship between the income range ($Y_{ij}$) and the predictor variables, Year ($Year_{i}$), and Geographical Location ($Province_{j}$).
 
-$Y_{ij}$ represents the income range for a specific combination of year ($Year_{i}$) and geographical location ($Province_{j}$). This formulation allows us to examine how income ranges vary across different years and provinces.
+$Y_{ij}$ represents the income range for a specific combination of year ($Year_{i}$) and geographical location ($Province_{i}$). This formulation allows us to examine how income ranges vary across different years and provinces.
 
 $\beta_{0}$ serves as the intercept term in the model, representing the expected value of the income range when all other predictors are zero. It provides a baseline reference point for comparison.
 
 $\beta_{1}$ is the coefficient associated with the "Year" variable ($Year_{i}$). This coefficient quantifies the effect of each unit change in the year on the income range, while holding all other variables constant. A positive coefficient suggests an increase in the income range over time, while a negative coefficient indicates a decrease.
 
-$\beta_{2}$ is the coefficient associated with the "Geographical Location" variable ($Province_{j}$). This coefficient captures the average difference in income range between different provinces, assuming the year remains constant. It allows us to assess the impact of geographical location on income disparities.
+$\beta_{2}$ is the coefficient associated with the "Geographical Location" variable ($Province_{i}$). This coefficient captures the average difference in income range between different provinces, assuming the year remains constant. It allows us to assess the impact of geographical location on income disparities.
 
-Model (\ref{eq-Model2}) provides a structured framework for analyzing the factors influencing income range variations across different years and geographical locations. By examining the effects of both temporal and spatial factors, the model helps to elucidate patterns of income distribution and disparities within the studied context.
+Model 2 provides a structured framework for analyzing the factors influencing income range variations across different years and geographical locations. By examining the effects of both temporal and spatial factors, the model helps to elucidate patterns of income distribution and disparities within the studied context.
 
 
 
@@ -253,42 +254,44 @@ income %>%
   ggplot(aes(x=Year, y=`Income Range`, colour = `Geographical Location`))+geom_point()+theme_minimal()+ylab("Highest-to-Lowest Average Income Ratio ")+geom_smooth(method='lm')
 ```
 
+
+
+
+
 ```{r}
 #| echo: false
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
-
 library(rstanarm)
 
 first_model <- 
   readRDS(file = here::here("models/model2.rds"))
 
 
-```
-
-```{r}
-#| echo: false
-#| eval: true
-#| warning: false
-#| message: false
-
-library(rstanarm)
-
 second_model<- 
   readRDS(file = here::here("models/model.rds"))
+
+modelsummary(
+  list(
+    "Model 1" = first_model,
+    "Model 2" = second_model
+  ), statistic = "mad",
+  fmt = 2
+)
+
 ```
+
+
 
 
 ```{r}
 #| label: tbl-model1
-#| tbl-cap: "Summary results for first model"
+#| tbl-cap: "Summary results for two models"
 #| echo: false
 #| eval: true
 #| warning: false
 #| message: false
-library(rstanarm)
-
 first_model <- 
   readRDS(file = here::here("models/model2.rds"))
 
@@ -303,6 +306,7 @@ modelsummary::modelsummary(
   ), statistic = "mad",
   fmt = 2
 )
+
 
 ```
 
@@ -326,22 +330,7 @@ In summary, Model 1 provides valuable insights into the factors influencing the 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-@tbl-modelresults2
-
-The results of the model reveal several significant findings regarding the relationship between the response variable and the predictor variables. Firstly, the intercept term is estimated to be -3309430.66, indicating the expected value of the response variable when all other predictors are zero. This intercept provides a reference point for comparison and interpretation of the effects of the other predictor variables.
+The results of the model2 reveal several significant findings regarding the relationship between the response variable and the predictor variables. Firstly, the intercept term is estimated to be -3309430.66, indicating the expected value of the response variable when all other predictors are zero. This intercept provides a reference point for comparison and interpretation of the effects of the other predictor variables.
 
 The coefficient for the variable "Year" is calculated to be 1730.57. This positive coefficient suggests that there is an average increase of 1730.57 units in the response variable for each unit increase in the year, holding all other variables constant. This implies that over time, there is a general upward trend in the response variable.
 
