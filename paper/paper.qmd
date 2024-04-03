@@ -190,10 +190,14 @@ In Model (\ref{eq-Model1})is specified as follows:
 
 -   $\beta_{2}$ represents the coefficient for the variable $Province_{j}$, indicating the effect of province on income inequality. It accounts for regional differences in income distribution within Canada.
 
-\begin{equation}
-Y_{ij} = \beta_{0} + \beta_{1}Year_{i} + \beta_{2}Province_{j}
+y_i|\mu_i, \sigma &\sim \text{Normal}(\mu_i, \sigma) \
+\mu_i &= \beta_0 + \beta_1 \times \text{Year}_i + \beta_2 \times \text{Geographical Location}_i\
+\beta_0 &\sim \text{Normal}(0, 2.5) \
+\beta_1 &\sim \text{Normal}(0, 2.5) \
+\beta_2 &\sim \text{Normal}(0, 2.5) \
+\sigma &\sim \text{Exponential}(1)
 \label{eq-Model2}
-\end{equation}
+\end{align}
 
 In Model (\ref{eq-Model2}):
 
@@ -303,6 +307,7 @@ modelsummary(
   ),fmt = 2
 )
 ```
+
 
 @tbl-modelresults
 
