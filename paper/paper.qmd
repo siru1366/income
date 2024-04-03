@@ -45,24 +45,24 @@ Despite numerous studies on income inequality in Canada, there remains a clear g
 Temporal trends reveal a consistent increase in income inequality from 1976 to 2021. Geographical disparities highlight varying levels of income inequality across provinces, with Atlantic provinces and Quebec showing higher inequality compared to others.Overall, these findings emphasize the multifaceted nature of income inequality dynamics in Canada, urging policymakers to consider both temporal trends and regional disparities when addressing this pressing socioeconomic issue.
 
 The remainder of this paper is structured as follows. @sec-data introduces the data used for analysis and findings, including visualizations of the variables of interest, @sec-model
-proposes a straightforward linear regression model to examine and forecasts the effects of time (year) and geographical location (province) on income inequality in Canada.In @sec-results, we display the interpretations of the models alongside other findings from analyzing the data. @sec-discussion provides a discussion on the implications of the findings as well as the weaknesses of this paper and its next steps for further study on this subject.
+proposes a straightforward linear regression model to examine and forecasts the effects of time (year) and geographical location (province) on income inequality in Canada. In @sec-results, we display the interpretations of the models alongside other findings from analyzing the data. @sec-discussion provides a discussion on the implications of the findings as well as the weaknesses of this paper and its next steps for further study on this subject.
 
 ## Estimand
 The estimand of this study is to quantify the relationship between time (year) and income inequality in Canada. Specifically, we aim to estimate the effect of each unit change in the year on income inequality, holding other variables constant. This involves analyzing how income inequality trends have evolved over the period from 1976 to 2021, capturing any systematic changes over time.
 
 Additionally, we seek to understand the impact of geographical location (province) on income inequality and how this interacts with temporal trends. By examining the coefficients associated with both year and province variables in our regression models, we aim to discern the average differences in income inequality between different provinces, while also exploring how these differences may have changed over time.
 
-Overall, our estimand focuses on uncovering the nuanced relationship between time, geographical location, and income inequality in Canada, providing insights into the factors influencing income distribution dynamics over the study period.
+Overall, our estimand focuses on uncovering the nuanced relationship between time, geographical location, and income inequality in Canada.
 
 # Data {#sec-data}
 
 ## Data Source
 
-Upper income limit, income share and average income by economic family type and income decile
+According to a report by  @statscanada, titled \textit{Upper income limit, income share and average income by economic family type and income decile},the data provided valuable insights into income distribution patterns in Canada.
 
 ## Data Measurment
 
-The estimates for Upper Income Limit, After-Tax Income by Economic and Income Decile in Canada are based on data from various surveys spanning different periods. From 1976 to 1992, data was collected from the Survey of Consumer Finances (SCF). For the period from 1993 to 1997, a combination of SCF and the Survey of Labour and Income Dynamics (SLID) was used. Subsequently, from 1998 to 2011, data solely from SLID was utilized. Starting from 2012, the Canadian Income Survey (CIS) became the primary data source. More details on these surveys and their revisions can be found in publications by Statistics Canada, including "Revisions to 2006 to 2011 Income Data" (2015) by Statistics Canada and other related papers by Cotton (2000) and Lathe (2005).
+The estimates for \textit{Upper income limit, income share and average income by economic family type and income decile} are based on data from various surveys spanning different periods. From 1976 to 1992, data was collected from the Survey of Consumer Finances (SCF). For the period from 1993 to 1997, a combination of SCF and the Survey of Labour and Income Dynamics (SLID) was used. Subsequently, from 1998 to 2011, data solely from SLID was utilized. Starting from 2012, the Canadian Income Survey (CIS) became the primary data source. More details on these surveys and their revisions can be found in publications by Statistics Canada, including "Revisions to 2006 to 2011 Income Data" (2015) by Statistics Canada and other related papers by Cotton (2000) and Lathe (2005).
 
 The Canadian Income Survey (CIS) aims to provide insights into the income and its sources of Canadians, alongside their individual and household characteristics. It combines data from the Labour Force Survey (LFS) and tax records.
 
@@ -99,7 +99,9 @@ linesep = "", digits = 1, booktabs=TRUE) %>%
 
 5.  **Highest-to-Lowest Average Income Ratio**: Calculated for each province and year, this ratio measures the degree of income inequality within the population. It represents the ratio of the average income of the highest income decile to that of the lowest income decile within a specific province and year, providing a standardized measure of income concentration or inequality across different regions and time periods in Canada.
 
-6.  **Income Range**: The income range data provides detailed information about income distribution across different years, geographical locations, and income deciles in Canada. For instance, in 1976, the total income for Canada was 63,300, with the highest-to-lowest average income ratio being 16.8, indicating a significant income gap between the highest and lowest deciles. The income range for the lowest decile in Canada was 9,400, while the income for the highest decile was $157,500.
+6.  **Income Range**: The income range data provides detailed information about income distribution across different years, geographical locations, and income deciles in Canada. 
+
+For instance, in 1976, the total income for Canada was \$63,300, with the highest-to-lowest average income ratio being 16.8, indicating a significant income gap between the highest and lowest deciles. The average after-tax income for the lowest decile in Canada was \$9,400, while the income for the highest decile was \$157,500.
 
 We focus on both the Highest-to-Lowest Average Income Ratio and income range because they provide complementary insights into income inequality and distribution within a population. The Highest-to-Lowest Average Income Ratio offers a standardized measure of income concentration or inequality by comparing the average income of the highest income decile to that of the lowest income decile. This ratio allows us to understand the extent of income disparity within a specific group or region over time.
 
@@ -211,7 +213,7 @@ In Model (\ref{eq-model2}):
 
 - $\beta_{1}$ is the coefficient associated with the "Year" variable ($Year_{i}$), representing the effect of each unit change in the year on the income range, holding other variables constant.
 
-- $\beta_{2}$ is the coefficient associated with the "Geographical Location" variable (\(Province_{i}\)), representing the average difference in income range between different provinces, holding the year constant.
+- $\beta_{2}$ is the coefficient associated with the "Geographical Location" variable ($Province_{i}$), representing the average difference in income range between different provinces, holding the year constant.
 
 
 We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
