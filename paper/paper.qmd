@@ -6,7 +6,7 @@ author:
 thanks: "Code and data are available at: https://github.com/siru1366/income.git."
 date: today
 date-format: long
-abstract: "This paper investigates income inequality in Canada from 1976 to 2021 using data from various surveys. Through exploratory data analysis and regression modeling, we uncover increasing income inequality trends over time and variations across different provinces. Our findings reveal nuanced relationships between temporal trends and regional disparities, and income distribution dynamics. Through rigorous analysis, we uncover two key findings: a consistent rise in income inequality over time, significant regional disparities across provinces. Understanding these dynamics is crucial for policymakers to develop targeted strategies aimed at mitigating income inequality and promoting social and economic equity in Canada."
+abstract: "This paper investigates income inequality in Canada from 1976 to 2021 using data from various surveys. Through exploratory data analysis and regression modeling, we uncover increasing income inequality trends over time and variations across different provinces. Our findings reveal nuanced relationships between temporal trends and regional disparities, and income distribution dynamics. Through rigorous analysis, we uncover two key findings: a consistent rise in income inequality over time, significant regional disparities across provinces. Understanding these dynamics is important for policymakers to develop targeted strategies aimed at mitigating income inequality and promoting social and economic equity in Canada."
 format: pdf
 toc: true
 number-sections: true
@@ -36,9 +36,9 @@ library(modelsummary)
 ```
 
 # Introduction
-Income inequality is a pressing socioeconomic issue that has garnered significant attention worldwide, with Canada being no exception. Over the past few decades, Canada has witnessed a widening gap in per capita after-tax income, raising concerns about economic disparities and social justice. Understanding the drivers behind this trend is crucial for policymakers and researchers alike, as it provides insights into the factors influencing income distribution and informs strategies to mitigate inequality.
+Income inequality is a notable socioeconomic issue that has gained attention worldwide, including in Canada. Over recent decades, Canada has seen a widening gap in per capita after-tax income, raising concerns about economic disparities and social justice. Understanding the drivers behind this trend is important for policymakers and researchers, providing insights into the factors influencing income distribution and informing strategies to mitigate inequality.
 
-This paper aims to investigate the intricate dynamics of income inequality within Canada, focusing on the period from 1976 to 2021. Leveraging a comprehensive dataset spanning multiple surveys, including the Survey of Consumer Finances (SCF), the Survey of Labour and Income Dynamics (SLID), and the Canadian Income Survey (CIS), we embark on a rigorous exploration of income trends across different provinces and over time. By examining key variables such as year, geographical location, income decile, and income range, we seek to uncover patterns and nuances in income distribution dynamics.
+This paper aims to investigate the intricate dynamics of income inequality within Canada, focusing on the period from 1976 to 2021. Using a wide-ranging dataset from surveys like the Survey of Consumer Finances (SCF), the Survey of Labour and Income Dynamics (SLID), and the Canadian Income Survey (CIS), we thoroughly investigate income trends across provinces and over time. By examining key variables such as year, geographical location, income decile, and income range, we seek to uncover patterns and nuances in income distribution dynamics.
 
 Despite numerous studies on income inequality in Canada, there remains a clear gap in understanding the specific drivers and mechanisms contributing to the widening income gap observed over the past four decades. To address this gap, we undertake a multifaceted analysis, encompassing exploratory data analysis and multiple linear regression modeling. Through this approach, we aim to elucidate the role of various factors, including temporal trends, regional disparities, in shaping income distribution patterns.
 
@@ -72,7 +72,7 @@ The CIS introduced improvements in methodology and data processing, notably from
 
 The CIS is a sample survey with a cross-sectional design, administered to a sub-sample of LFS respondents. The LFS employs a rotating panel sample design, with selected dwellings remaining in the sample for six consecutive months in the provinces and for two years in the territories. Rotation groups from the LFS are utilized for the CIS sample, with approximately 55,000 households included in the CIS sample for 2021.
 
-Data cleaning and analysis were conducted using the open-source statistical programming language `R` [@citeR], leveraging functionalities from the `tidyverse` [@tidyverse], `ggplot2` [@ggplot2], `dplyr` [@dplyr], `readr` [@readr], `tibble` [@tibble],`stringr`  [@stringr], `haven` [@haven], `janitor` [@janitor], `knitr` [@knitr].
+Data cleaning and analysis were conducted using the open-source statistical programming language `R` [@citeR], utilizing functionalities from the `tidyverse` [@tidyverse], `ggplot2` [@ggplot2], `dplyr` [@dplyr], `readr` [@readr], `tibble` [@tibble],`stringr`  [@stringr], `haven` [@haven], `janitor` [@janitor], `knitr` [@knitr].
 
 ## Variables of Interest
 
@@ -91,7 +91,7 @@ linesep = "", digits = 1, booktabs=TRUE) %>%
 
 1.  **Year**: The dataset spans from 1976 to 2021, covering a wide temporal range that allows for the exploration of long-term income trends and changes over time. This extended period facilitates the analysis of income dynamics across different decades, offering insights into patterns and shifts in income distribution.
 
-2.  **Geographical location**: The dataset includes data from all provinces in Canada, providing a comprehensive view of income distribution dynamics across the entire country. This geographic diversity enables the examination of regional variations and disparities in income levels and inequality measures.
+2.  **Geographical location**: The dataset covers all provinces in Canada, giving a complete view of income distribution dynamics across the country. This broad geographic coverage enables the examination of regional variations and disparities in income levels and inequality measures.
 
 3.  **Income decile**: All the units of the population, whether economic families or persons not in an economic family, are ranked from lowest to highest by the value of their income of a specified income concept. Then, the ranked population is divided into ten groups of equal numbers of units, called deciles. Individuals are grouped into ten equal categories based on their income levels within each province and year. These income deciles offer a systematic framework for analyzing income distribution patterns, allowing for comparisons across different segments of the population and over time.
 
@@ -165,7 +165,7 @@ The @fig-planes2 illustrates another metric of income inequality: the variance b
 
 In this section, we briefly discuss Bayesian models that are being used in this analysis.
 
-We develop two separate models to delve into the dynamics of income inequality and range variations in Canada.
+We develop two separate models to find the dynamics of income inequality and range variations in Canada.
 
 The first model focuses on examining the relationship between the highest-to-lowest average income ratio of average after-tax income to the lowest decile of average after-tax income and predictor variables such as year and geographical location. This model allows us to assess how income inequality changes over time and varies across different regions.
 
@@ -358,7 +358,7 @@ Furthermore, technological advancements and automation have transformed the labo
 
 Moreover, systemic issues such as disparities in access to education, healthcare, and opportunities for upward mobility have also contributed to the widening income gap. Structural inequalities embedded within society perpetuate cycles of poverty, making it difficult for individuals from lower-income backgrounds to break free from economic hardship @Chetty2020.
 
-Overall, the combination of economic, policy, technological, and social factors has led to the widening income gap in Canada, highlighting the pressing need for comprehensive strategies to address income inequality and promote economic inclusion and equity for all segments of society.
+In summary, a range of economic, policy, technological, and social factors have contributed to the widening income gap in Canada. This highlights the urgent need for effective strategies to address income inequality and promote economic inclusion and equity for all segments of society.
 
 ## Exploring Factors Contributing to Varied Income Inequality Across Canadian Provinces
 The disparity in income inequality between provinces in Canada can be attributed to a multitude of factors, including economic structure, industry composition, demographics, and government policies @smith2019. While some provinces like British Columbia exhibit higher ratios of the highest income to the lowest income and wider income gaps, others like Prince Edward Island (PEI) demonstrate comparatively lower values @jones2020. Several key reasons can elucidate why PEI may have lower income inequality metrics:
@@ -367,7 +367,7 @@ Economic Structure: PEI's economic structure differs significantly from province
 
 Population Size and Density: PEI's smaller population size and lower population density relative to provinces like British Columbia can influence income inequality. With a smaller labor force and fewer high-income earners, PEI may experience less income disparity @canadaCensus. Additionally, the close-knit communities and social cohesion in smaller provinces like PEI can contribute to a more equitable distribution of resources and opportunities @peiCommunityReport.
 
-Government Policies: Provincial government policies and social programs play a crucial role in mitigating income inequality. PEI's government may implement policies focused on social welfare, affordable housing, and income support programs to address economic disparities and ensure a more equitable distribution of wealth @peiGovernmentPolicy. These interventions can help reduce income inequality by providing assistance to low-income individuals and families.
+Government Policies: Provincial government policies and social programs play a vital role in mitigating income inequality. PEI's government may implement policies focused on social welfare, affordable housing, and income support programs to address economic disparities and ensure a more equitable distribution of wealth @peiGovernmentPolicy. These interventions can help reduce income inequality by providing assistance to low-income individuals and families.
 
 Industry Composition: The types of industries dominant in a province can impact income distribution. In PEI, industries like agriculture and fisheries may offer more uniform income levels across workers, resulting in lower income inequality @peiEconomicReview. Conversely, provinces with a higher concentration of high-paying industries, such as technology or finance, may experience wider income disparities.
 
@@ -382,7 +382,7 @@ One weakness of this study is the potential for omitted variable bias. Despite o
 
 Another weakness is the reliance on secondary data sources, such as surveys like the Survey of Consumer Finances (SCF), the Survey of Labour and Income Dynamics (SLID), and the Canadian Income Survey (CIS). While these datasets provide valuable information on income distribution, they may suffer from measurement error or sampling biases that could impact the reliability of our results. Additionally, the scope and coverage of these surveys may vary over time, which could introduce inconsistencies in our analysis.
 
-Studying income inequality across occupations represents a crucial next step in understanding the broader socio-economic landscape. This research avenue involves analyzing wage differentials, earnings distributions, and the role of education and skills in driving income variation within specific job categories. Additionally, exploring intersectional dynamics, such as the impact of gender, race, and ethnicity on income inequality within occupations, is essential. Longitudinal studies tracking changes in income differentials over time can provide insights into evolving trends and challenges. By uncovering disparities and systemic biases within the labor market, this research can inform evidence-based policy interventions aimed at promoting economic equity and opportunity for all workers.
+Studying income inequality across occupations represents a important next step in understanding the broader socio-economic landscape. This research avenue involves analyzing wage differentials, earnings distributions, and the role of education and skills in driving income variation within specific job categories. Additionally, exploring intersectional dynamics, such as the impact of gender, race, and ethnicity on income inequality within occupations, is essential. Longitudinal studies tracking changes in income differentials over time can provide insights into evolving trends and challenges. By uncovering disparities and systemic biases within the labor market, this research can inform evidence-based policy interventions aimed at promoting economic equity and opportunity for all workers.
 
 \newpage
 
