@@ -184,7 +184,7 @@ y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
 \label{eq-model1}
 \end{align}
 
-In Model (\ref{eq-model1})is specified as follows:
+In Model (\ref{eq-model1}) is specified as follows:
 
 -   $Y_{i}$ represents the highest-to-Lowest average income ratio of average after-tax income to the lowest decile of average after-tax income of Canada in $i^{th}$ year and province $i$.
 
@@ -220,7 +220,7 @@ We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use
 
 ## Model justification
 
-The first model (Equation 1) aims to capture the relationship between the response variable, $y_i$, representing the highest-to-lowest average income ratio of average after-tax income to the lowest decile of average after-tax income of Canada in the $i^{th}$ year and province $i$, and the predictor variables, $\text{Year}_i$ and $\text{Geographical Location}_i$.
+The first model (\ref{eq-model1}) aims to capture the relationship between the response variable, $y_i$, representing the highest-to-lowest average income ratio of average after-tax income to the lowest decile of average after-tax income of Canada in the $i^{th}$ year and province $i$, and the predictor variables, $\text{Year}_i$ and $\text{Geographical Location}_i$.
 
 The mean, $\mu_i$, is modeled as a linear combination of the intercept, $\beta_0$, and the coefficients for the predictor variables, $\beta_1$ for $\text{Year}_i$ and $\beta_2$ for $\text{Geographical Location}_i$. This allows us to assess the impact of time (year) and province on income inequality.
 
@@ -301,11 +301,10 @@ modelsummary::modelsummary(
 
 ```
 
-@tbl-model1
 
-The regression results are as follows:
+Based on @tbl-model1, the regression outcomes are outlined as follows:
 
-The results of Model 1 reveal several important findings regarding the relationship between the predictor variables and the highest-to-lowest average income ratio.
+The results of Model 1  reveal several important findings regarding the relationship between the predictor variables and the highest-to-lowest average income ratio.
 
 Firstly, the intercept term is calculated to be -98.40, indicating the estimated average ratio when all other predictor variables are zero. This intercept provides a baseline for comparison against the effects of the other predictors.
 
@@ -313,15 +312,12 @@ The coefficient for the variable "Year" is estimated to be 0.06. This positive c
 
 Furthermore, the coefficients for various provinces show differing effects on the income ratio compared to the reference category. For instance, provinces such as Alberta and British Columbia exhibit positive coefficients of 3.91 and 8.28, respectively, indicating higher average income ratios compared to the reference category. Conversely, provinces like Newfoundland and Labrador, Prince Edward Island, and New Brunswick demonstrate negative coefficients, suggesting lower average income ratios in these regions.
 
-Overall, the model's R-squared value of 0.149 indicates that approximately 14.9% of the variability in the highest-to-lowest average income ratio is explained by the predictor variables included in the model. Additionally, the adjusted R-squared value of 0.117 suggests that the model may slightly overestimate the true explanatory power due to the inclusion of additional predictors.
+Overall, the model's R-squared value of 0.149 indicates that approximately 14.9% of the variability in the highest-to-lowest average income ratio is explained by the predictor variables included in the model. Additionally, the adjusted R-squared value of 0.117 suggests that the model may slightly overestimate the true explanatory power due to the inclusion of additional predictors. The log likelihood of -1934.210 indicates the goodness-of-fit of the model, with lower values indicating a better fit. Furthermore, the root mean squared error (RMSE) of 8.25 provides a measure of the model's predictive accuracy, with smaller values indicating better predictive performance.
 
-The log likelihood of -1934.210 indicates the goodness-of-fit of the model, with lower values indicating a better fit. Furthermore, the root mean squared error (RMSE) of 8.25 provides a measure of the model's predictive accuracy, with smaller values indicating better predictive performance.
-
-In summary, Model 1 provides valuable insights into the factors influencing the highest-to-lowest average income ratio in Canada, highlighting the effects of time (Year) and geographical location (provinces) on income inequality. These findings contribute to a better understanding of regional disparities in income distribution and can inform policy decisions aimed at reducing inequality across different provinces.
+Combined with @figure5, Model 1 provides valuable insights into the factors influencing the highest-to-lowest average income ratio in Canada, highlighting the effects of time (Year) and geographical location (provinces) on income inequality. 
 
 
-
-The results of the model2 reveal several significant findings regarding the relationship between the response variable and the predictor variables. Firstly, the intercept term is estimated to be -3309430.66, indicating the expected value of the response variable when all other predictors are zero. This intercept provides a reference point for comparison and interpretation of the effects of the other predictor variables.
+The results of the Model 2 reveal several significant findings regarding the relationship between the response variable and the predictor variables. Firstly, the intercept term is estimated to be -3309430.66, indicating the expected value of the response variable when all other predictors are zero. This intercept provides a reference point for comparison and interpretation of the effects of the other predictor variables.
 
 The coefficient for the variable "Year" is calculated to be 1730.57. This positive coefficient suggests that there is an average increase of 1730.57 units in the response variable for each unit increase in the year, holding all other variables constant. This implies that over time, there is a general upward trend in the response variable.
 
@@ -329,7 +325,7 @@ Furthermore, the coefficients associated with the different geographical locatio
 
 Overall, the model demonstrates a good fit to the data, as indicated by the high values of R-squared (0.794) and adjusted R-squared (0.787). These metrics suggest that approximately 79.4% of the variability in the response variable is explained by the predictor variables included in the model. Additionally, the log likelihood value of -6054.760 indicates a good fit of the model to the data.
 
-In summary, the results provide valuable insights into the factors influencing the response variable, as well as the overall fit and predictive performance of the model. These findings contribute to a better understanding of the relationships between the predictor variables and the response variable, which can inform decision-making and policy development in relevant contexts.
+
 
 
 
@@ -378,7 +374,7 @@ In summary, Prince Edward Island's lower values in terms of income inequality me
 
 ## Weaknesses and next steps
 
-One weakness of this study is the potential for omitted variable bias. Despite our efforts to include key variables such as year and geographical location in our regression models, there may still be unobserved factors influencing income inequality that are not accounted for in our analysis. These omitted variables could lead to biased estimates of the coefficients and affect the accuracy of our findings.
+One weakness of this study is the potential for omitted variable bias. Despite our efforts to include key variables such as year and geographical location in our regression models, there remains a possibility of unaccounted factors, such as gender and education, influencing income inequality. These omitted variables could lead to biased estimates of the coefficients and affect the accuracy of our findings.
 
 Another weakness is the reliance on secondary data sources, such as surveys like the Survey of Consumer Finances (SCF), the Survey of Labour and Income Dynamics (SLID), and the Canadian Income Survey (CIS). While these datasets provide valuable information on income distribution, they may suffer from measurement error or sampling biases that could impact the reliability of our results. Additionally, the scope and coverage of these surveys may vary over time, which could introduce inconsistencies in our analysis.
 
