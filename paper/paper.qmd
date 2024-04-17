@@ -82,7 +82,7 @@ income <<- read_parquet(file = here::here("data/analysis_data/cleaned_income_dat
 income %>%
   slice(1:20) %>%
   kable(
-    caption = "Extracting the first ten rows from the Income data",
+    caption = "Extracting the first twenty rows from the Income data",
 col.names=c("Year", "Geographical location", "Income decile", "Income", "Highest-to-Lowest Average Income Ratio", "income range"),
 linesep = "", digits = 1, booktabs=TRUE) %>%
   kable_styling(latex_options = "HOLD_position", font_size = 10)
@@ -117,10 +117,13 @@ On the other hand, the income range provides information about the actual income
 #| warning: false
 income3 <- read_parquet(file = here::here("data/analysis_data/cleaned_income_data.parquet"),show_col_types = FALSE)
 
+income3 <- income3 %>% 
+  rename(`Geographical Location` = Geographical_Location)
+
 income3 %>%
   filter(
          `Income decile` == "Lowest decile" | `Income decile` == "Total deciles"| `Income decile` == "Highest decile",
-         `Geographical_Location` == "Canada") %>%
+         `Geographical Location` == "Canada") %>%
   ggplot(aes(x=Year, y=Income, colour = `Income decile`))+geom_line()+theme_minimal()+ylab("Average after-tax income")
   
 
@@ -135,12 +138,14 @@ As depicted in the figure by @fig-bills, the average after-tax income for econom
 #| echo: false
 #| warning: false
 #| message: false
-income3 <- read_parquet(file = here::here("data/analysis_data/cleaned_income_data.parquet"),show_col_types = FALSE)
-income3 %>%
+income4 <- read_parquet(file = here::here("data/analysis_data/cleaned_income_data.parquet"),show_col_types = FALSE)
+income4 <- income4 %>% 
+  rename(`Geographical Location` = Geographical_Location)
+income4 %>%
   filter(
          `Income decile` == "Total deciles",
-         `Geographical_Location` != "Canada") %>%
-  ggplot(aes(x=Year, y=`Highest-to-Lowest_Average_Income_Ratio`, colour = `Geographical_Location`))+geom_point()+theme_minimal()+ylab("Average after-tax income range")
+         `Geographical Location` != "Canada") %>%
+  ggplot(aes(x=Year, y=`Highest-to-Lowest_Average_Income_Ratio`, colour = `Geographical Location`))+geom_point()+theme_minimal()+ylab("Average after-tax income range")
 ```
 
 @fig-planes, the Highest-to-Lowest Average Income Ratio across Canadian provinces has shown a general upward trend, following a decline from 1980 to 1990. However, each province exhibits distinct performance. Notably, British Columbia's ratio surpasses that of other provinces. Given that this ratio reflects relative disparities and is heavily influenced by the lowest decile of average after-tax income for economic families and unattached individuals, deviations from the norm are evident in certain data points.
@@ -150,12 +155,14 @@ income3 %>%
 #| echo: false
 #| warning: false
 #| message: false
-income4 <- read_parquet(file = here::here("data/analysis_data/cleaned_income_data.parquet"),show_col_types = FALSE)
-income4 %>%
+income5 <- read_parquet(file = here::here("data/analysis_data/cleaned_income_data.parquet"),show_col_types = FALSE)
+income5 <- income5 %>% 
+  rename(`Geographical Location` = Geographical_Location)
+income5 %>%
   filter(
          `Income decile` == "Total deciles",
-         `Geographical_Location` != "Canada") %>%
-  ggplot(aes(x=Year, y=`Income_Range`, colour = `Geographical_Location`))+geom_point()+theme_minimal()+ylab("Average after-tax income range")
+         `Geographical Location` != "Canada") %>%
+  ggplot(aes(x=Year, y=`Income_Range`, colour = `Geographical Location`))+geom_point()+theme_minimal()+ylab("Average after-tax income range")
 ```
 
 
